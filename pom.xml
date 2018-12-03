@@ -31,6 +31,7 @@
     <modules>
         <module>phoenix</module>
         <module>spark</module>
+        <module>spark-jdbc</module>
     </modules>
 
 </project>
