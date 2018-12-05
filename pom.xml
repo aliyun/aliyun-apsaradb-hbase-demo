@@ -32,6 +32,7 @@
         <module>phoenix</module>
         <module>spark</module>
         <module>spark-jdbc</module>
+        <module>sparkstreaming-kafka010</module>
     </modules>
 
 </project>
