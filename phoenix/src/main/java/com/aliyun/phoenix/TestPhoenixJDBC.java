@@ -18,9 +18,8 @@ public class TestPhoenixJDBC {
             Connection con =
                     DriverManager.getConnection("jdbc:phoenix:" + zkAddress);
             Statement stmt = con.createStatement();
-            stmt.execute("drop table if exists test");
-            stmt.execute("create table test (mykey integer not null primary key, mycolumn varchar)");
-            stmt.execute("create index test_idx on test(mycolumn)");
+            stmt.execute("create table if not exists test (mykey integer not null primary key, mycolumn varchar) salt_buckets = 4");
+            stmt.execute("create index if not exists test_idx on test(mycolumn)");
             stmt.executeUpdate("upsert into test values (1,'World!')");
             stmt.executeUpdate("upsert into test values (2,'Hello')");
             stmt.executeUpdate("upsert into test values (3,'World!')");
