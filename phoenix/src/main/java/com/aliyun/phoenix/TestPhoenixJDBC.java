@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * create table, create index, insert data, select table.
@@ -15,8 +16,10 @@ public class TestPhoenixJDBC {
     public static void main(String[] args) {
         try {
             String zkAddress = args[0];
+            Properties p = new Properties();
+            p.put("phoenix.query.dateFormatTimeZone", "GMT+8");
             Connection con =
-                    DriverManager.getConnection("jdbc:phoenix:" + zkAddress);
+                    DriverManager.getConnection("jdbc:phoenix:" + zkAddress, p);
             Statement stmt = con.createStatement();
             stmt.execute("create table if not exists test (mykey integer not null primary key, mycolumn varchar) salt_buckets = 4");
             stmt.execute("create index if not exists test_idx on test(mycolumn)");
