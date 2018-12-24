@@ -30,5 +30,6 @@ public class JavaSparkOnPhoenixSparkSession {
     sparkSession.sql(createCmd);
     String querySql = "select * from " + sparkTableName + " limit 1";
     sparkSession.sql(querySql).show();
+    sparkSession.stop();
   }
 }
