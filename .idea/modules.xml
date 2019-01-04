@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/hbase/hbase-examples.iml" filepath="$PROJECT_DIR$/hbase/hbase-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hbase-root.iml" filepath="$PROJECT_DIR$/hbase-root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/phoenix/phoenix-examples.iml" filepath="$PROJECT_DIR$/phoenix/phoenix-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spark/spark-examples/spark-examples.iml" filepath="$PROJECT_DIR$/spark/spark-examples/spark-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spark/spark-jdbc/spark-jdbc.iml" filepath="$PROJECT_DIR$/spark/spark-jdbc/spark-jdbc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spark/sparkstreaming-kafka010/sparkstreaming-kafka010.iml" filepath="$PROJECT_DIR$/spark/sparkstreaming-kafka010/sparkstreaming-kafka010.iml" />
+    </modules>
+  </component>
+</project>

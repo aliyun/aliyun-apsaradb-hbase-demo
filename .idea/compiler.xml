@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="hbase-examples" />
+        <module name="phoenix-examples" />
+        <module name="spark-examples" />
+        <module name="spark-jdbc" />
+        <module name="sparkstreaming-kafka010" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="hbase-examples" target="1.5" />
+      <module name="hbase-root" target="1.5" />
+      <module name="phoenix-examples" target="1.8" />
+      <module name="spark-examples" target="1.5" />
+      <module name="spark-jdbc" target="1.5" />
+      <module name="sparkstreaming-kafka010" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
