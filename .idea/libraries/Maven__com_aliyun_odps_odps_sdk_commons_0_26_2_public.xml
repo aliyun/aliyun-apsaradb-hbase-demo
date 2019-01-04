@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.aliyun.odps:odps-sdk-commons:0.26.2-public">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/aliyun/odps/odps-sdk-commons/0.26.2-public/odps-sdk-commons-0.26.2-public.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/aliyun/odps/odps-sdk-commons/0.26.2-public/odps-sdk-commons-0.26.2-public-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/aliyun/odps/odps-sdk-commons/0.26.2-public/odps-sdk-commons-0.26.2-public-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
