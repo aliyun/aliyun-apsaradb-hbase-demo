@@ -37,6 +37,7 @@
         <module>spark/sparkstreaming-kafka010</module>
         <module>hbase</module>
         <module>solr</module>
+        <module>phoenix/phoenix-5.x</module>
     </modules>
 
 </project>
