@@ -6,6 +6,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.params.CursorMarkParams;
 
+import java.util.Arrays;
+
 /**
  * 实例使用 {@link SolrAddDocumentDemo} 准备的数据进行各种查询demo演示
  *
@@ -54,10 +56,11 @@ public class SolrQueryDemo {
 
     /**
      * 模糊查询, 匹配 f1_s字段中，val99通过一个字符变化能匹配到的记录，比如 val9、val19、val29...val98、val99这种
+     * f1_s:val99~1 表示可以允许有1个字符变化去匹配记录
+     * f1_s:val99~ 表示默认可以有2个字符可变
      */
     public static void fuzzyQueryDemo(String collection, String zkhost, String zkroot) {
         try(CloudSolrClient client = new CloudSolrClient.Builder().withZkChroot(zkroot).withZkHost(zkhost).build()) {
-//            SolrQuery solrQuery = new SolrQuery("f1_s:val99~");
             SolrQuery solrQuery = new SolrQuery("f1_s:val99~1");
             QueryResponse response = client.query(collection, solrQuery);
             System.out.println(response);
@@ -94,13 +97,14 @@ public class SolrQueryDemo {
 
     /**
      * 范围查询，中括号表示闭区间，大括号表示开区间
+     * f6_i:[1 TO 3]  表示区间 [1,3]
+     * f6_i:[90 TO *] 表示区间 [90,*]
+     * f6_i:[* TO 3}  表示区间 [*,3)
+     * f6_i:{1 TO 3}  表示区间 (1,3)
      */
     public static void rangeQueryDemo(String collection, String zkhost, String zkroot) {
         try(CloudSolrClient client = new CloudSolrClient.Builder().withZkChroot(zkroot).withZkHost(zkhost).build()) {
-//            SolrQuery solrQuery = new SolrQuery("f6_i:[1 TO 3]");
-//            SolrQuery solrQuery = new SolrQuery("f6_i:[90 TO *]");
             SolrQuery solrQuery = new SolrQuery("f6_i:[* TO 3}");
-//            SolrQuery solrQuery = new SolrQuery("f6_i:{1 TO 3}");
             QueryResponse response = client.query(collection, solrQuery);
             System.out.println(response);
         }catch (Exception e){
@@ -185,7 +189,8 @@ public class SolrQueryDemo {
             SolrQuery solrQuery = new SolrQuery("*:*");
             solrQuery.setFacet(true);
             solrQuery.addFacetField("f8_i");
-//          solrQuery.setFacetLimit(5);
+            solrQuery.setFacetLimit(5); //表示统计返回的个数，特别是按照field单个统计时太多时
+            solrQuery.setFacetMinCount(10); //表示统计结果大于10的统计值才返回
             QueryResponse response = client.query(collection, solrQuery);
             System.out.println(response.getResults()); //查询返回的结果
             System.out.println(response.getFacetFields()); //根据查询结果，进行的facet统计
@@ -226,7 +231,7 @@ public class SolrQueryDemo {
             solrQuery.addField("f7_i");
             solrQuery.addField("f8_i");
             solrQuery.addField("map(f7_i,0,15,-1,1)");
-//            solrQuery.addField("map(f7_i,0,15,-1)");
+            solrQuery.addField("map(f6_i,0,15,-1)");
             QueryResponse response = client.query(collection, solrQuery);
             System.out.println(response.getResults());
         } catch (Exception e) {
@@ -257,7 +262,7 @@ public class SolrQueryDemo {
      */
     public static void deleteByQueryDemo(String collection, String zkhost, String zkroot) {
         try(CloudSolrClient client = new CloudSolrClient.Builder().withZkChroot(zkroot).withZkHost(zkhost).build()) {
-            UpdateResponse response = client.deleteByQuery(collection,"*:*");
+            UpdateResponse response = client.deleteByQuery(collection,"f9_i:[0 TO 5]");
             System.out.println(response);
         }catch (Exception e){
             e.printStackTrace();
@@ -269,9 +274,10 @@ public class SolrQueryDemo {
      */
     public static void deleteByIdDemo(String collection, String zkhost, String zkroot) {
         try(CloudSolrClient client = new CloudSolrClient.Builder().withZkChroot(zkroot).withZkHost(zkhost).build()) {
-            UpdateResponse response = client.deleteById("1");
-//            UpdateResponse response = client.deleteById(Arrays.asList("1","2"));
-            System.out.println(response);
+            UpdateResponse response1 = client.deleteById("1");
+            System.out.println(response1);
+            UpdateResponse response2 = client.deleteById(Arrays.asList("2","3"));
+            System.out.println(response2);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -283,21 +289,21 @@ public class SolrQueryDemo {
         String zkhost = "localhost:9983";
         String collection = "solrdemo";
         matchAllQueryDemo(collection, zkhost, zkroot);
-//        termQueryDemo(collection, zkhost, zkroot);
-//        wildcardQueryDemo(collection, zkhost, zkroot);
-//        fuzzyQueryDemo(collection, zkhost, zkroot);
-//        phraseQueryDemo(collection, zkhost, zkroot);
-//        proximityQueryDemo(collection, zkhost, zkroot);
-//        rangeQueryDemo(collection, zkhost, zkroot);
-//        queryMultiConditions(collection, zkhost, zkroot);
-//        commonPagination(collection, zkhost, zkroot);
-//        cursorMarkPagination(collection, zkhost, zkroot);
-//        facetFieldDemo(collection, zkhost, zkroot);
-//        facetRangeDemo(collection, zkhost, zkroot);
-//        functionDemo(collection, zkhost, zkroot);
-//        statsDemo(collection, zkhost, zkroot);
-//        deleteByQueryDemo(collection, zkhost, zkroot);
-//        deleteByIdDemo(collection, zkhost, zkroot);
+        termQueryDemo(collection, zkhost, zkroot);
+        wildcardQueryDemo(collection, zkhost, zkroot);
+        fuzzyQueryDemo(collection, zkhost, zkroot);
+        phraseQueryDemo(collection, zkhost, zkroot);
+        proximityQueryDemo(collection, zkhost, zkroot);
+        rangeQueryDemo(collection, zkhost, zkroot);
+        queryMultiConditions(collection, zkhost, zkroot);
+        commonPagination(collection, zkhost, zkroot);
+        cursorMarkPagination(collection, zkhost, zkroot);
+        facetFieldDemo(collection, zkhost, zkroot);
+        facetRangeDemo(collection, zkhost, zkroot);
+        functionDemo(collection, zkhost, zkroot);
+        statsDemo(collection, zkhost, zkroot);
+        deleteByQueryDemo(collection, zkhost, zkroot);
+        deleteByIdDemo(collection, zkhost, zkroot);
     }
 
 }
