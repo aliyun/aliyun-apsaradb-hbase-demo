@@ -1,5 +1,8 @@
 package com.aliyun.spark.mongodb
 
+import com.mongodb.spark.MongoSpark
+import com.mongodb.spark.config.ReadConfig
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
 object SparkOnMongoDBSparkSparkSession {
@@ -10,7 +13,7 @@ object SparkOnMongoDBSparkSparkSession {
     val database = args(1)
     val collection = args(2)
     //Spark侧的表名。
-    var sparkTableName = args(3)
+    var sparkTableName = if (args.size > 3) args(3) else "spark_onmongodb_sparksession_test01"
 
     val sparkSession = SparkSession
       .builder()
@@ -18,7 +21,23 @@ object SparkOnMongoDBSparkSparkSession {
       .appName("scala spark on MongoDB test")
       .getOrCreate()
 
-    //带Schema的创建方式
+    //Spark 读取MongoDB数据有多种方式。
+    //使用Dataset API方式：
+    //设置MongoDB的参数
+    val sparkConf = new SparkConf()
+      .set("spark.mongodb.input.uri", connectionStringURI)
+      .set("spark.mongodb.input.database", database)
+      .set("spark.mongodb.input.collection", collection)
+      .set("spark.mongodb.output.uri", connectionStringURI)
+      .set("spark.mongodb.output.database", database)
+      .set("spark.mongodb.output.collection", collection)
+    val readConf = ReadConfig(sparkConf)
+    //获取Dataframe
+    val df = MongoSpark.load(sparkSession, readConf)
+    df.show(1)
+
+    //使用Sql的方式，SQL的方式有两种，指定Schema和不指定Schema
+    //指定Schema的创建方式，Schema中的字段必须和MongoDB中Collection的Schema一致。
     var createCmd = s"""CREATE TABLE ${sparkTableName} (
                        |      id String,
                        |      name String
@@ -29,12 +48,11 @@ object SparkOnMongoDBSparkSparkSession {
                        |    collection '$collection'
                        |    )""".stripMargin
 
-    println(" createCmd: \n" + createCmd)
     sparkSession.sql(createCmd)
     var querySql = "select * from " + sparkTableName + " limit 1"
     sparkSession.sql(querySql).show
 
-    //不带Schema的创建方式
+    //不指定Schema的创建方式，不指定Schema，Spark会映射MOngoDB中collection的Schema。
     sparkTableName = sparkTableName + "_noschema"
     createCmd = s"""CREATE TABLE ${sparkTableName} USING com.mongodb.spark.sql
                    |    options (
@@ -43,11 +61,11 @@ object SparkOnMongoDBSparkSparkSession {
                    |    collection '$collection'
                    |    )""".stripMargin
 
-    println(" createCmd: \n" + createCmd)
     sparkSession.sql(createCmd)
     querySql = "select * from " + sparkTableName + " limit 1"
     sparkSession.sql(querySql).show
 
     sparkSession.stop()
+
   }
 }
