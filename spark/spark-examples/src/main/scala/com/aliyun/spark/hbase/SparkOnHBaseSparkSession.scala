@@ -1,4 +1,4 @@
-package com.aliyun.spark
+package com.aliyun.spark.hbase
 
 import org.apache.spark.sql.SparkSession
 
@@ -24,14 +24,14 @@ object SparkOnHBaseSparkSession {
     val zkAddress = args(0)
     val createCmd = s"""CREATE TABLE ${sparkTableName} USING org.apache.hadoop.hbase.spark
                        |    OPTIONS ('catalog'=
-                       |    '{"table":{"namespace":"default", "name":"${hbaseTableName}"},"rowkey":"rowkey1",
+                       |    '{"table":{"namespace":"default", "name":"${hbaseTableName}"},"rowkey":"key",
                        |    "columns":{
-                       |    "col0":{"cf":"rowkey", "col":"rowkey1", "type":"string"},
-                       |    "col1":{"cf":"cf", "col":"col1", "type":"String"}}}',
+                       |    "col0":{"cf":"rowkey", "col":"key", "type":"string"},
+                       |    "col1":{"cf":"cf1", "col":"a", "type":"int"},
+                       |    "col2":{"cf":"cf1", "col":"b", "type":"String"}}}',
                        |    'hbase.zookeeper.quorum' = '${zkAddress}'
                        |    )""".stripMargin
 
-    println(" createCmd: \n" + createCmd)
     sparkSession.sql(createCmd)
     val querySql = "select * from " + sparkTableName + " limit 1"
     sparkSession.sql(querySql).show

@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.aliyun.apsaradb</groupId>
             <artifactId>alimongo-spark</artifactId>
-            <version>2.4.0_2.3.2-1.0</version>
+            <version>2.4.0_2.3.2-1.0.1</version>
         </dependency>
         <!--for mongoDB -->
     </dependencies>
