@@ -5,7 +5,7 @@ import com.mongodb.spark.config.ReadConfig
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
-object SparkOnMongoDBSparkSparkSession {
+object SparkOnMongoDBSparkSession {
 
   def main(args: Array[String]): Unit = {
     //获取MongoDB的 connectionStringURI，database 和 collection
@@ -13,7 +13,7 @@ object SparkOnMongoDBSparkSparkSession {
     val database = args(1)
     val collection = args(2)
     //Spark侧的表名。
-    var sparkTableName = if (args.size > 3) args(3) else "spark_onmongodb_sparksession_test01"
+    var sparkTableName = if (args.size > 3) args(3) else "spark_on_mongodb_sparksession_test01"
 
     val sparkSession = SparkSession
       .builder()
