@@ -29,9 +29,48 @@
         <dependency>
             <groupId>com.aliyun.apsaradb</groupId>
             <artifactId>alimongo-spark</artifactId>
-            <version>2.4.0_2.3.2-1.0.1</version>
+            <version>${mongo.client.version}_${spark.version}-${spark.connecots.version}</version>
         </dependency>
         <!--for mongoDB -->
+
+        <!--for local debug spark on hbase-->
+        <dependency>
+            <groupId>com.aliyun.apsaradb</groupId>
+            <artifactId>alihbase-spark</artifactId>
+            <version>${hbase.version}_${spark.version}-${spark.connecots.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-client</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-all</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-protocol</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-server</artifactId>
+            <version>${hbase.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-all</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <!--for local debug spark on hbase-->
     </dependencies>
     <build>
         <plugins>
