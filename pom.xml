@@ -24,6 +24,7 @@
     </organization>
 
     <properties>
+        <scala.version>2.11.8</scala.version>
         <spark.connecots.version>1.0.1</spark.connecots.version>
         <phoenix.version>4.12.0-AliHBase-1.1-0.6</phoenix.version>
         <spark.version>2.3.2</spark.version>
