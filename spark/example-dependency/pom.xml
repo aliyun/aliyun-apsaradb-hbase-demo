@@ -14,12 +14,105 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <scala.version>2.11.8</scala.version>
+        <spark.connecots.version>1.0.1</spark.connecots.version>
+        <phoenix.version>4.12.0-AliHBase-1.1-0.6</phoenix.version>
+        <spark.version>2.3.2</spark.version>
+        <hbase.version>1.1.3</hbase.version>
+        <solr.version>7.3.1</solr.version>
+        <mongo.client.version>2.4.0</mongo.client.version>
+    </properties>
+
+
     <dependencies>
+        <!-- spark on HBase 1.1.3依赖-->
         <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.11.8</version>
+            <groupId>com.aliyun.apsaradb</groupId>
+            <artifactId>alihbase-spark</artifactId>
+            <version>${hbase.version}_${spark.version}-${spark.connecots.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-annotations</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-client</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-common</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-hadoop-compat</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-hadoop2-compat</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-prefix-tree</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-procedure</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-protocol</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>alihbase-server</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- spark on HBase 1.1.3依赖-->
+
+        <!-- spark on Phoenix 4.x依赖-->
+        <!-- spark on Phoenix 4.x依赖-->
+
+        <!-- spark on MongoDB依赖-->
+        <!-- spark on MongoDB依赖-->
+
+        <!-- spark on DataHub依赖-->
+        <!-- spark on DataHub依赖-->
+
+        <!-- spark on RDS mysql 依赖-->
+        <!-- spark on RDS mysql 依赖-->
+
+        <!-- spark on RDS sqlServer 依赖-->
+        <!-- spark on RDS sqlServer 依赖-->
+
+        <!-- spark on RDS postGresql 依赖-->
+        <!-- spark on RDS postGresql 依赖-->
+
+        <!-- spark on POLARDB 依赖-->
+        <!-- spark on POLARDB 依赖-->
+
+        <!-- spark on Redis 依赖-->
+        <!-- spark on Redis 依赖-->
+
     </dependencies>
 
     <build>
