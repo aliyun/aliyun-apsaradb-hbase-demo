@@ -2,7 +2,7 @@ package com.aliyun.spark.phoenix
 
 import org.apache.spark.sql.SparkSession
 
-object SparkOnPhoenixSparkSession {
+object SparkOnPhoenix4xSparkSession {
   def main(args: Array[String]): Unit = {
     //HBase集群的ZK链接地址。//HBase集群的ZK链接地址。使用时请把此路径替换为你自己的HBase集群的zk访问地址。
     //格式为：xxx-002.hbase.rds.aliyuncs.com,xxx-001.hbase.rds.aliyuncs.com,xxx-003.hbase.rds.aliyuncs.com:2181
