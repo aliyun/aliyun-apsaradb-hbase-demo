@@ -4,9 +4,9 @@ import org.apache.spark.sql.SparkSession;
 
 /**
  * 运行命令
- * spark-submit --master yarn --class com.aliyun.spark.JavaSparkOnPhoenixSparkSession /opt/spark-examples-0.0.1-SNAPSHOT.jar zkAddress
+ * spark-submit --master yarn --class com.aliyun.spark.JavaSparkOnPhoenix4xSparkSession /opt/spark-examples-0.0.1-SNAPSHOT.jar zkAddress
  */
-public class JavaSparkOnPhoenixSparkSession {
+public class JavaSparkOnPhoenix4xSparkSession {
   public static void main(String[] args) {
     SparkSession sparkSession = SparkSession
             .builder()
