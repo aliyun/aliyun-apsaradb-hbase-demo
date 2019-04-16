@@ -7,9 +7,6 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 /**
   * 此demo为SparkStreaming使用kafka010客户的实例，适用于阿里云互联网中间件->消息队列kafka。
   * 实例场景说明：kafka发送字符串，SparkStream获取字符串后按照空格拆分成单词，然后记录每个单词的总个数。
-  * 运行命令：
-  * spark-submit --master yarn --class com.aliyun.spark.SparkStreamingOnKafka010 /opt/jars/test/sparkstreaming-kafka010-0.0.1-SNAPSHOT.jar
-  * ip1:9092,ip2:9092,ip3:9092 topic groupId
   */
 object SparkStreamingOnKafka010 {
 
