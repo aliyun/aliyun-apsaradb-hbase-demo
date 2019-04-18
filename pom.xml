@@ -43,6 +43,7 @@
         <module>spark/spark-examples</module>
         <module>spark/spark-jdbc</module>
         <module>spark/sparkstreaming</module>
+        <module>spark/common-test</module>
         <module>hbase</module>
         <module>solr</module>
         <module>phoenix/phoenix-5.x</module>
