@@ -4,7 +4,7 @@ import java.util.Properties
 
 import org.apache.spark.sql.SparkSession
 
-object SparkOnPolarDBArchive {
+object SparkOnPolarDBArchiveByPartition {
 
   def main(args: Array[String]): Unit = {
     //获取POLARDB的 url、tableName、登录POLARDB数据库的user和password
