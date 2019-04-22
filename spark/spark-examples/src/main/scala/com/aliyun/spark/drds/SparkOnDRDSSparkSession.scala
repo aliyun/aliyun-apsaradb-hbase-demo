@@ -1,13 +1,13 @@
-package com.aliyun.spark.rds
+package com.aliyun.spark.drds
 
 import java.util.Properties
 
 import org.apache.spark.sql.SparkSession
 
-object SparkOnRDSMySQLSparkSession {
+object SparkOnDRDSSparkSession {
 
   def main(args: Array[String]): Unit = {
-    //获取RDS的 url、database、tableName、登录RDS数据库的user和password
+    //获取DRDS的 url、database、tableName、登录DRDS数据库的user和password
     val url = args(0)
     val jdbcConnURL = s"jdbc:mysql://$url"
     val database = args(1)
@@ -21,12 +21,12 @@ object SparkOnRDSMySQLSparkSession {
     val sparkSession = SparkSession
       .builder()
       .enableHiveSupport() //可选，使用hive-metastore后通过thriftServer可以查看到代码中创建的表
-      .appName("scala spark on RDS test")
+      .appName("scala spark on DRDS test")
       .getOrCreate()
 
     val driver = "com.mysql.jdbc.Driver"
 
-    //Sql方式，Spark会映射RDS中表的Schema。
+    //Sql方式，Spark会映射DRDS中表的Schema。
     val createCmd =
       s"""CREATE TABLE ${sparkTableName} USING org.apache.spark.sql.jdbc
          |    options (
@@ -55,8 +55,8 @@ object SparkOnRDSMySQLSparkSession {
 
     val data =
       Seq(
-        Person("bill", 30, 170.5D),
-        Person("gate", 29, 200.3D)
+        Person("bill", 30, 170.5),
+        Person("gate", 29, 200.3)
       )
     val dfWrite = sparkSession.createDataFrame(data)
 

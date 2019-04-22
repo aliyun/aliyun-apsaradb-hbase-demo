@@ -2,13 +2,12 @@ package com.aliyun.spark.rds
 
 import java.util.Properties
 
-import com.aliyun.spark.polardb.Person
 import org.apache.spark.sql.SparkSession
 
 object SparkOnRDSSqlServerSparkSession {
 
   def main(args: Array[String]): Unit = {
-    //获取POLARDB的 url、database、tableName、登录POLARDB数据库的user和password
+    //获取RDS的 url、database、tableName、登录RDS数据库的user和password
     val url = args(0)
     val database = args(1)
     val jdbcConnURL = s"jdbc:sqlserver://$url;DatabaseName=$database"
@@ -28,7 +27,7 @@ object SparkOnRDSSqlServerSparkSession {
 
     val driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
 
-    //Sql方式，Spark会映射POLARDB中表的Schema。
+    //Sql方式，Spark会映射RDS中表的Schema。
     val createCmd =
       s"""CREATE TABLE ${sparkTableName} USING org.apache.spark.sql.jdbc
          |    options (

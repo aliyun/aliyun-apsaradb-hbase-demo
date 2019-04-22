@@ -8,7 +8,7 @@ import org.apache.spark.sql.SparkSession
 object SparkOnRDSPostgreSQLSparkSession {
 
   def main(args: Array[String]): Unit = {
-    //获取POLARDB的 url、database、tableName、登录POLARDB数据库的user和password
+    //获取RDS的 url、database、tableName、登录RDS数据库的user和password
     val url = args(0)
     val database = args(1)
     val jdbcConnURL = s"jdbc:postgresql://$url/$database"
@@ -28,7 +28,7 @@ object SparkOnRDSPostgreSQLSparkSession {
 
     val driver = "org.postgresql.Driver"
 
-    //Sql方式，Spark会映射POLARDB中表的Schema。
+    //Sql方式，Spark会映射RDS中表的Schema。
     val createCmd =
       s"""CREATE TABLE ${sparkTableName} USING org.apache.spark.sql.jdbc
          |    options (
