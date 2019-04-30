@@ -68,6 +68,20 @@
             <version>${datahu.client.version}</version>
         </dependency>
         <!--dependency for spark on datahub-->
+
+        <!--dependency for spark on loghub-->
+        <dependency>
+            <groupId>com.aliyun.apsaradb</groupId>
+            <artifactId>loghub-spark</artifactId>
+            <version>${spark.connectors.loghub.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.47</version>
+        </dependency>
+        <!--dependency for spark on loghub-->
+
     </dependencies>
     <build>
         <plugins>

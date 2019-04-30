@@ -33,9 +33,11 @@
         <mongo.client.version>2.4.0</mongo.client.version>
         <kafka.client.version>0.10.0.0</kafka.client.version>
         <datahu.client.version>2.9.2-public</datahu.client.version>
+        <loghubb.client.version>0.6.13</loghubb.client.version>
         <spark.connectors.mongo.version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.mongo.version>
         <spark.connectors.datahub.version>${datahu.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.datahub.version>
         <spark.connectors.hbase.version>${hbase.version}_${spark.version}-${spark.connectors.version}</spark.connectors.hbase.version>
+        <spark.connectors.loghub.version>${loghubb.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.loghub.version>
     </properties>
 
     <modules>
