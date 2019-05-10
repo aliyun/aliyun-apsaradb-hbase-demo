@@ -31,6 +31,11 @@
             <artifactId>alimongo-spark</artifactId>
             <version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.aliyun.apsaradb</groupId>
+            <artifactId>maxcompute-spark</artifactId>
+            <version>${spark.connectors.maxcompute.version}</version>
+        </dependency>
         <!--for mongoDB -->
 
         <!--for local debug spark on hbase-->
