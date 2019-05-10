@@ -38,13 +38,13 @@
         <spark.connectors.mongo.version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.mongo.version>
         <spark.connectors.datahub.version>${datahu.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.datahub.version>
         <spark.connectors.hbase.version>${hbase.version}_${spark.version}-${spark.connectors.version}</spark.connectors.hbase.version>
-        <spark.connectors.maxcompute.version>${maxcompute.version}_${spark.version}-1.0</spark.connectors.maxcompute.version>
+        <spark.connectors.maxcompute.version>${maxcompute.version}_${spark.version}-1.0.2</spark.connectors.maxcompute.version>
         <spark.connectors.loghub.version>${loghubb.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.loghub.version>
     </properties>
 
     <modules>
-        <module>phoenix/phoenix-4.x</module>
         <module>spark/spark-examples</module>
+        <module>phoenix/phoenix-4.x</module>
         <module>spark/spark-jdbc</module>
         <module>spark/sparkstreaming</module>
         <module>spark/common-test</module>

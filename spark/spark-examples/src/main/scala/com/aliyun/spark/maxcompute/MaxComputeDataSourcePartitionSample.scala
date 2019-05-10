@@ -3,7 +3,7 @@ package com.aliyun.spark.maxcompute
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
-object MaxComputeDataSourceSample {
+object MaxComputeDataSourcePartitionSample {
   def main(args: Array[String]): Unit = {
     if (args.length < 6) {
       System.err.println(
@@ -22,7 +22,7 @@ object MaxComputeDataSourceSample {
       System.exit(1)
     }
 
-    //CREATE TABLE sparktest (name string) ; 创建一个只有一个String字段的MaxCompute表
+    //create table sparktest2 (name string) PARTITIONED BY (pt string); ; 创建一个只有一个String字段的MaxCompute表,分区为pt
 
     val accessKeyId = args(0)
     val accessKeySecret = args(1)
@@ -52,8 +52,9 @@ object MaxComputeDataSourceSample {
       .option("table", table)
       .option("project", project)
       .option("accessKeySecret", accessKeySecret)
+      .option("partitionSpec", "pt='2018-04-01'")
+      .option("allowCreateNewPartition", true)
       .option("accessKeyId", accessKeyId).mode(SaveMode.Overwrite).save()
-
     System.out.println("*****" + table + ",after overwrite table, before read table")
 
     val readDF = ss.read
@@ -64,6 +65,7 @@ object MaxComputeDataSourceSample {
       .option("project", project)
       .option("accessKeySecret", accessKeySecret)
       .option("accessKeyId", accessKeyId)
+      .option("partitionSpec", "pt='2018-04-01'")
       .option("numPartitions",numPartitions).load()
 
     readDF.collect().foreach(println)
