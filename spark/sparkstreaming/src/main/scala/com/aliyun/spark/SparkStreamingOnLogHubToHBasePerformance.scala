@@ -12,7 +12,7 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.aliyun.logservice.LoghubUtils
 import org.apache.spark.streaming.{Milliseconds, StreamingContext}
 
-object SparkStreamingOnLogHubToHBase {
+object SparkStreamingOnLogHubToHBasePerformance {
 
   def main(args: Array[String]): Unit = {
     if (args.length < 7) {
