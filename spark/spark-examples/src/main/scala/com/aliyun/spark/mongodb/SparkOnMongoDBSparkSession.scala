@@ -1,9 +1,10 @@
 package com.aliyun.spark.mongodb
 
 import com.mongodb.spark.MongoSpark
-import com.mongodb.spark.config.ReadConfig
+import com.mongodb.spark.config.{ReadConfig, WriteConfig}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+import org.bson.Document
 
 object SparkOnMongoDBSparkSession {
 
@@ -36,17 +37,32 @@ object SparkOnMongoDBSparkSession {
     val df = MongoSpark.load(sparkSession, readConf)
     df.show(1)
 
+    //使用MongoSpark.save入库数据到MongoDB
+    val docs =
+      """
+        |{"id": "id105", "name": "name105"}
+        |{"id": "id106", "name": "name106"}
+        |{"id": "id107", "name": "name107"}
+        |"""
+        .trim.stripMargin.split("[\\r\\n]+").toSeq
+    val writeConfig: WriteConfig = WriteConfig(Map(
+      "uri" -> connectionStringURI,
+      "spark.mongodb.output.database" -> database,
+      "spark.mongodb.output.collection"-> collection))
+    MongoSpark.save(sparkSession.sparkContext.parallelize(docs.map(Document.parse)), writeConfig)
+
     //使用Sql的方式，SQL的方式有两种，指定Schema和不指定Schema
     //指定Schema的创建方式，Schema中的字段必须和MongoDB中Collection的Schema一致。
-    var createCmd = s"""CREATE TABLE ${sparkTableName} (
-                       |      id String,
-                       |      name String
-                       |    ) USING com.mongodb.spark.sql
-                       |    options (
-                       |    uri '$connectionStringURI',
-                       |    database '$database',
-                       |    collection '$collection'
-                       |    )""".stripMargin
+    var createCmd =
+    s"""CREATE TABLE ${sparkTableName} (
+       |      id String,
+       |      name String
+       |    ) USING com.mongodb.spark.sql
+       |    options (
+       |    uri '$connectionStringURI',
+       |    database '$database',
+       |    collection '$collection'
+       |    )""".stripMargin
 
     sparkSession.sql(createCmd)
     var querySql = "select * from " + sparkTableName + " limit 1"
@@ -54,12 +70,13 @@ object SparkOnMongoDBSparkSession {
 
     //不指定Schema的创建方式，不指定Schema，Spark会映射MOngoDB中collection的Schema。
     sparkTableName = sparkTableName + "_noschema"
-    createCmd = s"""CREATE TABLE ${sparkTableName} USING com.mongodb.spark.sql
-                   |    options (
-                   |    uri '$connectionStringURI',
-                   |    database '$database',
-                   |    collection '$collection'
-                   |    )""".stripMargin
+    createCmd =
+      s"""CREATE TABLE ${sparkTableName} USING com.mongodb.spark.sql
+         |    options (
+         |    uri '$connectionStringURI',
+         |    database '$database',
+         |    collection '$collection'
+         |    )""".stripMargin
 
     sparkSession.sql(createCmd)
     querySql = "select * from " + sparkTableName + " limit 1"
