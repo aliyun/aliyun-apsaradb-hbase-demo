@@ -32,6 +32,12 @@
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!--dependency for sparkstreaming on kafka010-->
         <dependency>
@@ -68,6 +74,20 @@
             <version>${datahu.client.version}</version>
         </dependency>
         <!--dependency for spark on datahub-->
+
+        <!--dependency for spark on loghub-->
+        <dependency>
+            <groupId>com.aliyun.apsaradb</groupId>
+            <artifactId>loghub-spark</artifactId>
+            <version>${spark.connectors.loghub.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.47</version>
+        </dependency>
+        <!--dependency for spark on loghub-->
+
     </dependencies>
     <build>
         <plugins>

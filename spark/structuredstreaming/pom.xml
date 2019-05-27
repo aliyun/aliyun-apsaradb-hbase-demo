@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -10,85 +10,30 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>com.aliyun.hbase</groupId>
-    <artifactId>spark-examples</artifactId>
+    <artifactId>structuredstreaming</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-catalyst_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--for mongoDB -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.8.2</version>
         </dependency>
         <dependency>
-            <groupId>com.aliyun.apsaradb</groupId>
-            <artifactId>alimongo-spark</artifactId>
-            <version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</version>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.aliyun.apsaradb</groupId>
-            <artifactId>maxcompute-spark</artifactId>
-            <version>${spark.connectors.maxcompute.version}</version>
-        </dependency>
-        <!--for mongoDB -->
 
-        <!--for local debug spark on hbase-->
+        <!-- for redis -->
         <dependency>
-            <groupId>com.aliyun.apsaradb</groupId>
-            <artifactId>alihbase-spark</artifactId>
-            <version>${spark.connectors.hbase.version}</version>
-            <scope>provided</scope>
+            <groupId>com.redislabs</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.aliyun.hbase</groupId>
-            <artifactId>alihbase-client</artifactId>
-            <version>${hbase.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun.hbase</groupId>
-            <artifactId>alihbase-protocol</artifactId>
-            <version>${hbase.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun.hbase</groupId>
-            <artifactId>alihbase-server</artifactId>
-            <version>${hbase.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>provided</scope>
-        </dependency>
-        <!--for local debug spark on hbase-->
-        <!--for tablestore-->
-        <dependency>
-            <groupId>com.aliyun.apsaradb</groupId>
-            <artifactId>spark-tablestore</artifactId>
-            <version>${spark.connectors.tablestore.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun.openservices</groupId>
-            <artifactId>tablestore</artifactId>
-            <version>${tablestore.sdk.version}</version>
-            <classifier>jar-with-dependencies</classifier>
-        </dependency>
-        <!--for tablestore-->
+        <!-- for redis -->
+
     </dependencies>
     <build>
         <plugins>
@@ -157,5 +102,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

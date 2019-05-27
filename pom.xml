@@ -25,28 +25,36 @@
 
     <properties>
         <scala.version>2.11.8</scala.version>
-        <spark.connectors.version>1.0.1</spark.connectors.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <spark.connectors.version>1.0.3</spark.connectors.version>
         <phoenix.version>4.12.0-AliHBase-1.1-0.6</phoenix.version>
         <spark.version>2.3.2</spark.version>
+        <maxcompute.version>0.28.4-public</maxcompute.version>
         <hbase.version>1.1.3</hbase.version>
         <solr.version>7.3.1</solr.version>
         <mongo.client.version>2.4.0</mongo.client.version>
         <kafka.client.version>0.10.0.0</kafka.client.version>
         <datahu.client.version>2.9.2-public</datahu.client.version>
+        <loghubb.client.version>0.6.13</loghubb.client.version>
+        <tablestore.sdk.version>4.11.0</tablestore.sdk.version>
         <spark.connectors.mongo.version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.mongo.version>
         <spark.connectors.datahub.version>${datahu.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.datahub.version>
         <spark.connectors.hbase.version>${hbase.version}_${spark.version}-${spark.connectors.version}</spark.connectors.hbase.version>
+        <spark.connectors.maxcompute.version>${maxcompute.version}_${spark.version}-1.0.2</spark.connectors.maxcompute.version>
+        <spark.connectors.loghub.version>${loghubb.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.loghub.version>
+        <spark.connectors.tablestore.version>${tablestore.sdk.version}_${spark.version}-${spark.connectors.version}</spark.connectors.tablestore.version>
     </properties>
 
     <modules>
-        <module>phoenix/phoenix-4.x</module>
         <module>spark/spark-examples</module>
+        <module>phoenix/phoenix-4.x</module>
         <module>spark/spark-jdbc</module>
         <module>spark/sparkstreaming</module>
         <module>spark/common-test</module>
         <module>hbase</module>
         <module>solr</module>
         <module>phoenix/phoenix-5.x</module>
+        <module>spark/structuredstreaming</module>
     </modules>
 
 </project>
