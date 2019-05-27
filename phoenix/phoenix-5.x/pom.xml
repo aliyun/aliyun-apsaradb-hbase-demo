@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>com.aliyun.phoenix</groupId>
-            <artifactId>ali-phoenix-queryserver-client</artifactId>
+            <artifactId>ali-phoenix-shaded-thin-client</artifactId>
             <version>${phoenix.version}</version>
         </dependency>
     </dependencies>
