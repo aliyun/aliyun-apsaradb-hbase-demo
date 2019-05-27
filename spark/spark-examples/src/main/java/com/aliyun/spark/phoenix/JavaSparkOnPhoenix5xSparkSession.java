@@ -1,4 +1,4 @@
-package com.aliyun.spark;
+package com.aliyun.spark.phoenix;
 
 import org.apache.spark.sql.SparkSession;
 

@@ -1,10 +1,10 @@
-package com.aliyun.spark;
+package com.aliyun.spark.hbase;
 
 import org.apache.spark.sql.SparkSession;
 
 /**
  * 运行命令
- * spark-submit --master yarn --class com.aliyun.spark.JavaSparkOnHBaseSparkSession /opt/spark-examples-0.0.1-SNAPSHOT.jar zkAddress
+ * spark-submit --master yarn --class com.aliyun.spark.hbase.JavaSparkOnHBaseSparkSession /opt/spark-examples-0.0.1-SNAPSHOT.jar zkAddress
  */
 public class JavaSparkOnHBaseSparkSession {
   public static void main(String[] args) {
