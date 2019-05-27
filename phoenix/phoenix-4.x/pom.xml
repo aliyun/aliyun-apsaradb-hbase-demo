@@ -13,6 +13,10 @@
     <artifactId>phoenix-examples</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+
+    <properties>
+        <phoenix.version>4.12.0-AliHBase-1.1-0.8</phoenix.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.aliyun.phoenix</groupId>
