@@ -27,10 +27,12 @@
         </dependency>
 
         <!-- for redis -->
+        <!--编译时使用此版本编译，运行时请下载下面jar包运行：
+        https://spark-home.oss-cn-shanghai.aliyuncs.com/spark_connectors/jedis-3.0.0-20181113.105826-9.jar-->
         <dependency>
             <groupId>com.redislabs</groupId>
             <artifactId>jedis</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>3.0.0-m1</version>
         </dependency>
         <!-- for redis -->
 
