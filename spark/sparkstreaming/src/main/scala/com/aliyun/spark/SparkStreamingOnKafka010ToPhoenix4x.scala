@@ -16,6 +16,8 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
   *   city VARCHAR NOT NULL,
   *   population BIGINT
   * CONSTRAINT my_pk PRIMARY KEY (state, city));
+  *
+  * spark对接kafka可参考指导文档：https://help.aliyun.com/document_detail/114567.html?spm=a2c4g.11174283.6.600.71bf3c2eVsUNgm
   */
 
 object SparkStreamingOnKafka010ToPhoenix4x {
