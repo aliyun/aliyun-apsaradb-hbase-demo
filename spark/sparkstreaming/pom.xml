@@ -88,6 +88,15 @@
         </dependency>
         <!--dependency for spark on loghub-->
 
+        <!--dependency for spark on common-test-->
+        <dependency>
+            <groupId>com.aliyun.hbase</groupId>
+            <artifactId>common-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--dependency for spark on common-test-->
+
     </dependencies>
     <build>
         <plugins>
