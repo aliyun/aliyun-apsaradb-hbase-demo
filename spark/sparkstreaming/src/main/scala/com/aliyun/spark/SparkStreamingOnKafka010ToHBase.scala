@@ -11,6 +11,8 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 /**
   * 此demo为SparkStreaming使用kafka010客户的实例，适用于阿里云互联网中间件->消息队列kafka。
   * 实例场景说明：kafka发送字符串，SparkStream获取字符串后按照空格拆分后入库hbase。
+  * 本实例kafka发送的数据一行中要有3个单词，使用空格分开。例如：
+  * hello are you
   */
 object SparkStreamingOnKafka010ToHBase {
 
