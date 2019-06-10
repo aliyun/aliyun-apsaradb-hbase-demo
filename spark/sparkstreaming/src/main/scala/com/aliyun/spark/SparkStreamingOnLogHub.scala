@@ -2,6 +2,7 @@
 package com.aliyun.spark
 
 import com.alibaba.fastjson.{JSON, JSONObject}
+import com.aliyun.openservices.loghub.client.config.LogHubCursorPosition
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.aliyun.logservice.LoghubUtils
@@ -60,6 +61,21 @@ object SparkStreamingOnLogHub {
         accessKeyId,
         accessKeySecret,
         StorageLevel.MEMORY_AND_DISK)
+
+      //通过LogHubCursorPosition.BEGIN_CURSOR指定消费Cursor的模式。
+//      val loghubStream = LoghubUtils.createStream(
+//        ssc,
+//        loghubProject,
+//        logStore,
+//        loghubGroupName,
+//        endpoint,
+//        numReceiver,
+//        accessKeyId,
+//        accessKeySecret,
+//        StorageLevel.MEMORY_AND_DISK,
+//        LogHubCursorPosition.BEGIN_CURSOR,
+//        -1,
+//        false)
 
       loghubStream.checkpoint(batchInterval * 2).foreachRDD{rdd =>
         rdd.foreach{line =>
