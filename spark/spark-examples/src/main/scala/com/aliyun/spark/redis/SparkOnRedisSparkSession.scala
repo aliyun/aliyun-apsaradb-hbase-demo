@@ -1,7 +1,7 @@
 package com.aliyun.spark.redis
 
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.types._
 
 object SparkOnRedisSparkSession {
@@ -37,6 +37,7 @@ object SparkOnRedisSparkSession {
     dfw.write.format("org.apache.spark.sql.redis")
       .option("model", "hash")
       .option("table", redisTableName)
+      .mode(SaveMode.Append)
       .save()
 
     //默认方式读取redis的hash值

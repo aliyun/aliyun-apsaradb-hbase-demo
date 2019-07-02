@@ -51,6 +51,9 @@ object SparkOnMongoDBSparkSession {
       "spark.mongodb.output.collection"-> collection))
     MongoSpark.save(sparkSession.sparkContext.parallelize(docs.map(Document.parse)), writeConfig)
 
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
+
     //使用Sql的方式，SQL的方式有两种，指定Schema和不指定Schema
     //指定Schema的创建方式，Schema中的字段必须和MongoDB中Collection的Schema一致。
     var createCmd =
@@ -65,11 +68,15 @@ object SparkOnMongoDBSparkSession {
        |    )""".stripMargin
 
     sparkSession.sql(createCmd)
-    var querySql = "select * from " + sparkTableName + " limit 1"
+    var querySql = "select * from " + sparkTableName + " limit 10"
     sparkSession.sql(querySql).show
 
     //不指定Schema的创建方式，不指定Schema，Spark会映射MOngoDB中collection的Schema。
     sparkTableName = sparkTableName + "_noschema"
+
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
+
     createCmd =
       s"""CREATE TABLE ${sparkTableName} USING com.mongodb.spark.sql
          |    options (

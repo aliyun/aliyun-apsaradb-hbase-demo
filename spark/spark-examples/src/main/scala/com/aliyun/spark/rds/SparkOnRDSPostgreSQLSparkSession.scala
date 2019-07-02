@@ -28,6 +28,9 @@ object SparkOnRDSPostgreSQLSparkSession {
 
     val driver = "org.postgresql.Driver"
 
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
+
     //Sql方式，Spark会映射RDS中表的Schema。
     val createCmd =
       s"""CREATE TABLE ${sparkTableName} USING org.apache.spark.sql.jdbc
