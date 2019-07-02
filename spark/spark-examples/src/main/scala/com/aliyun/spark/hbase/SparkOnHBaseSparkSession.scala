@@ -17,6 +17,10 @@ object SparkOnHBaseSparkSession {
 //      .enableHiveSupport() //使用enableHiveSupport后通过spark jdbc查看到代码中创建的表
       .appName("scala spark on HBase test")
       .getOrCreate()
+
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
+
     val createCmd = s"""CREATE TABLE ${sparkTableName} USING org.apache.hadoop.hbase.spark
                        |    OPTIONS ('catalog'=
                        |    '{"table":{"namespace":"default", "name":"${hbaseTableName}"},"rowkey":"rowkey",

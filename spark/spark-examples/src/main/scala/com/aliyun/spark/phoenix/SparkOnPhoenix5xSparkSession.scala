@@ -20,6 +20,9 @@ object SparkOnPhoenix5xSparkSession {
       .appName("scala spark on Phoenix5.x test")
       .getOrCreate()
 
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
+
     val driver = "org.apache.phoenix.queryserver.client.Driver"
     val url = "jdbc:phoenix:thin:url=" + queryServerAddress + ";serialization=PROTOBUF"
     val createCmd = "CREATE TABLE " +

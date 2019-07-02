@@ -21,6 +21,8 @@ object SparkOnPhoenix4xSparkSession {
       .appName("scala spark on Phoenix test")
       .getOrCreate()
 
+    //如果存在的话就删除表
+    sparkSession.sql(s"drop table if exists $sparkTableName")
 
     val createCmd = "CREATE TABLE " +
       sparkTableName +
