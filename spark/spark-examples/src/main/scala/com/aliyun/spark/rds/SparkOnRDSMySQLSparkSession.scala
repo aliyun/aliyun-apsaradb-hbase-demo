@@ -30,6 +30,8 @@ object SparkOnRDSMySQLSparkSession {
     sparkSession.sql(s"drop table if exists $sparkTableName")
 
     //Sql方式，Spark会映射RDS中表的Schema。
+    val dropSparkExternalTable = s"drop table if exists ${sparkTableName}"
+    sparkSession.sql(dropSparkExternalTable)
     val createCmd =
       s"""CREATE TABLE ${sparkTableName} USING org.apache.spark.sql.jdbc
          |    options (
