@@ -14,12 +14,12 @@ object SparkOnHBaseJDBC {
     // 格式为：jdbc:hive2://xxx-001.spark.9b78df04-b.rds.aliyuncs.com:10000;
     val thriftServerAdress = args(0)
     //Spark侧的表名。
-    val sparkTableName = "spark_hbase"
+    val sparkTableName = args(1)
     //hbase侧的表名，需要在hbase侧提前创建。hbase表创建可以参考：https://help.aliyun.com/document_detail/52051.html?spm=a2c4g.11174283.6.577.7e943c2eiYCq4k
-    val phoenixTableName = "mytable"
+    val hbaseTableName = args(2)
     //HBase集群的ZK链接地址。//HBase集群的ZK链接地址。使用时请把此路径替换为你自己的HBase集群的zk访问地址。
     //格式为：xxx-002.hbase.rds.aliyuncs.com:2181,xxx-001.hbase.rds.aliyuncs.com:2181,xxx-003.hbase.rds.aliyuncs.com:2181
-    val zkAddress = args(1)
+    val zkAddress = args(3)
     try {
       Class.forName(driver)
     } catch {
@@ -31,7 +31,7 @@ object SparkOnHBaseJDBC {
       //建表语句
       val createCmd = s"""CREATE TABLE ${sparkTableName} USING org.apache.hadoop.hbase.spark
                         |    OPTIONS ('catalog'=
-                        |    '{"table":{"namespace":"default", "name":"${phoenixTableName}"},"rowkey":"rowkey1",
+                        |    '{"table":{"namespace":"default", "name":"${hbaseTableName}"},"rowkey":"rowkey1",
                         |    "columns":{
                         |    "col0":{"cf":"rowkey", "col":"rowkey1", "type":"string"},
                         |    "col1":{"cf":"cf", "col":"col1", "type":"String"}}}',
@@ -39,9 +39,11 @@ object SparkOnHBaseJDBC {
                         |    )""".stripMargin
 
       println(" createCmd: \n" + createCmd)
+      //如果存在的话就删除表
+      stmt.execute(s"drop table if exists $sparkTableName")
       //创建表
       stmt.execute(createCmd)
-      val querySql = "select * from " + sparkTableName + " limit 1"
+      val querySql = "select * from " + sparkTableName + " limit 10"
       val pstmt = conn.prepareStatement(querySql)
       val resultSet = pstmt.executeQuery
       //打印查询结果

@@ -14,12 +14,12 @@ object SparkOnPhoenixJDBC {
     // 格式为：jdbc:hive2://xxx-001.spark.9b78df04-b.rds.aliyuncs.com:10000;
     val thriftServerAdress = args(0)
     //Spark侧的表名。
-    val sparkTableName = "spark_phoenix"
+    val sparkTableName = args(1)
     //Phoenix侧的表名，需要在Phoenix侧提前创建。Phoenix表创建可以参考：https://help.aliyun.com/document_detail/53716.html?spm=a2c4g.11186623.4.2.4e961ff0lRqHUW
-    val phoenixTableName = "us_population"
+    val phoenixTableName = args(2)
     //HBase集群的ZK链接地址。//HBase集群的ZK链接地址。使用时请把此路径替换为你自己的HBase集群的zk访问地址。
     //格式为：xxx-002.hbase.rds.aliyuncs.com,xxx-001.hbase.rds.aliyuncs.com,xxx-003.hbase.rds.aliyuncs.com:2181
-    val zkAddress = args(1)
+    val zkAddress = args(3)
     try {
       Class.forName(driver)
     } catch {
@@ -37,6 +37,9 @@ object SparkOnPhoenixJDBC {
         "  'table' '" + phoenixTableName + "'\n" +
         ")"
       println(" createCmd: \n" + createCmd)
+      //如果存在的话就删除表
+      stmt.execute(s"drop table if exists $sparkTableName")
+
       //创建表
       stmt.execute(createCmd)
       val querySql = "select * from " + sparkTableName + " limit 1"
