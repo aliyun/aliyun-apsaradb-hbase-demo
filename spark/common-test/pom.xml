@@ -14,7 +14,7 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
-      <version>0.10.0.0</version>
+      <version>${kafka.client.version}</version>
     </dependency>
     <dependency>
       <groupId>com.aliyun.datahub</groupId>
