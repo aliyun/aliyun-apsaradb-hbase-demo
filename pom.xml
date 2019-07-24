@@ -32,7 +32,7 @@
         <hbase.version>1.1.3</hbase.version>
         <solr.version>7.3.1</solr.version>
         <mongo.client.version>2.4.0</mongo.client.version>
-        <kafka.client.version>0.10.0.0</kafka.client.version>
+        <kafka.client.version>0.10.2.2</kafka.client.version>
         <datahu.client.version>2.9.2-public</datahu.client.version>
         <loghubb.client.version>0.6.13</loghubb.client.version>
         <tablestore.sdk.version>4.11.0</tablestore.sdk.version>
