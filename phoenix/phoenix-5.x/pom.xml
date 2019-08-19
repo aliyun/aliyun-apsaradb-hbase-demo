@@ -13,7 +13,7 @@
     <artifactId>phoenix-5.x</artifactId>
 
     <properties>
-        <phoenix.version>5.1.0-HBase-2.0.0.2</phoenix.version>
+        <phoenix.version>5.2.1-HBase-2.x</phoenix.version>
     </properties>
 
     <dependencies>
