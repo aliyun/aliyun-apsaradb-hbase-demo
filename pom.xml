@@ -54,6 +54,7 @@
         <module>solr</module>
         <module>phoenix/phoenix-5.x</module>
         <module>spark/structuredstreaming</module>
+        <module>phoenix/phoenix-mybatis</module>
     </modules>
 
 </project>
