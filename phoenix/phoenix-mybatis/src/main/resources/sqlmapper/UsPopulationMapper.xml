@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aliyun.phoenix.mybatis.mapper.UsPopulationMapper">
+    <resultMap id="BaseResultMap" type="com.aliyun.phoenix.mybatis.bean.UsPopulationDO">
+        <result column="state" jdbcType="VARCHAR" property="state"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="population" jdbcType="BIGINT" property="population"/>
+    </resultMap>
+
+    <select id="selectByExample" parameterType="com.aliyun.phoenix.mybatis.bean.UsPopulationDO"
+            resultMap="BaseResultMap">
+        select state,city,population
+        from us_population
+        <if test="_parameter != null">
+            <where>
+                <trim prefix="(" prefixOverrides="and" suffix=")">
+                    <if test="_parameter.state != null">
+                        and state = #{state}
+                    </if>
+                    <if test="_parameter.city != null">
+                        and city = #{city}
+                    </if>
+                    <if test="_parameter.population != null">
+                        and population = #{population}
+                    </if>
+                </trim>
+            </where>
+        </if>
+    </select>
+
+    <insert id="upsertByExample" parameterType="com.aliyun.phoenix.mybatis.bean.UsPopulationDO">
+        upsert into us_population
+        values(#{state,jdbcType=VARCHAR},#{city,jdbcType=VARCHAR},#{population,jdbcType=BIGINT})
+    </insert>
+
+</mapper>
