@@ -21,9 +21,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
  */
 @Configuration
 @MapperScan(
-    basePackages = {MybatisToPhoenixConfiguration.PHOENIX_MYBATIS_MAPPER_PACKAGES},
-    sqlSessionFactoryRef = MybatisToPhoenixConfiguration.PHOENIX_SQL_SESSION_FACTORY_BEAN_NAME)
-public class MybatisToPhoenixConfiguration {
+    basePackages = {PhoenixForMybatisConfiguration.PHOENIX_MYBATIS_MAPPER_PACKAGES},
+    sqlSessionFactoryRef = PhoenixForMybatisConfiguration.PHOENIX_SQL_SESSION_FACTORY_BEAN_NAME)
+public class PhoenixForMybatisConfiguration {
 
     static final String PHOENIX_MYBATIS_MAPPER_PACKAGES = "com.aliyun.phoenix.mybatis.mapper";
 
