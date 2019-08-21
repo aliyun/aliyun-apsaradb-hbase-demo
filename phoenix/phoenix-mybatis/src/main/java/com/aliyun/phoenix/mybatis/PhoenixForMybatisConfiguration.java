@@ -15,10 +15,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-/**
- * @author 长轻
- * @date 2019/8/14 4:31 PM
- */
 @Configuration
 @MapperScan(
     basePackages = {PhoenixForMybatisConfiguration.PHOENIX_MYBATIS_MAPPER_PACKAGES},
@@ -33,10 +29,8 @@ public class PhoenixForMybatisConfiguration {
 
     private final static String PHOENIX_TRANSACTION_MANAGER_NAME = "phoenix_transaction_manager";
 
-    /**
-     * mybatis mapper resource 路径
-     */
-    private static String MAPPER_PATH = "/sqlmapper/**.xml";
+    //mybatis mapper resource 路径
+    private final static String MAPPER_PATH = "/sqlmapper/**.xml";
 
     @Value("${spring.datasource.phoenix.server.url}")
     private String phoenixServerUrl;

@@ -4,12 +4,6 @@ import java.util.List;
 
 import com.aliyun.phoenix.mybatis.bean.UsPopulationDO;
 
-/**
- * mybatis 美国人口 mapper
- *
- * @author 长轻
- * @date 2019/8/14 5:29 PM
- */
 public interface UsPopulationMapper {
 
     /**

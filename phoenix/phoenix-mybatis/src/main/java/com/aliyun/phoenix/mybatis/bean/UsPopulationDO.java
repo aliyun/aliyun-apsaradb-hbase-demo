@@ -1,9 +1,5 @@
 package com.aliyun.phoenix.mybatis.bean;
 
-/**
- * @author 长轻
- * @date 2019/8/15 5:07 PM
- */
 public class UsPopulationDO {
 
     private String state;
