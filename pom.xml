@@ -36,6 +36,7 @@
         <datahu.client.version>2.9.2-public</datahu.client.version>
         <loghubb.client.version>0.6.13</loghubb.client.version>
         <tablestore.sdk.version>4.11.0</tablestore.sdk.version>
+        <oss.sdk.version>3.1.0</oss.sdk.version>
         <spark.connectors.mongo.version>${mongo.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.mongo.version>
         <spark.connectors.datahub.version>${datahu.client.version}_${spark.version}-${spark.connectors.version}</spark.connectors.datahub.version>
         <spark.connectors.hbase.version>${hbase.version}_${spark.version}-${spark.connectors.version}</spark.connectors.hbase.version>
