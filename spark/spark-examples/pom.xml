@@ -89,6 +89,13 @@
             <classifier>jar-with-dependencies</classifier>
         </dependency>
         <!--for tablestore-->
+
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>${oss.sdk.version}</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
