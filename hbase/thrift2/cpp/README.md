@@ -1,0 +1,3 @@
+1. thrift --gen cpp hbase.thrift
+2. g++ -std=c++11 -DHAVE_NETINET_IN_H -o HbaseClient -I/Users/yadongchen/alibaba/aliyun-apsaradb-hbase-demo/hbase/thrift2/cpp -I/usr/local/include/thrift -I./gen-cpp -L/usr/local/lib HbaseClient.cpp ./gen-cpp/hbase_types.cpp ./gen-cpp/hbase_constants.cpp ./gen-cpp/THBaseService.cpp THttpClient.cpp -lthrift -g
+3. ./HbaseClient ld-bp1n9k5e2skw959z5-proxy-hbaseue-pub.hbaseue.rds.aliyuncs.com 9190
