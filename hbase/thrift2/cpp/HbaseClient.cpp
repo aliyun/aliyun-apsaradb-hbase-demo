@@ -3,7 +3,7 @@
 #include <vector>
 #include "transport/TSocket.h"
 #include <transport/TBufferTransports.h>
-#include <THttpClient.h>
+#include <AliTHttpClient.h>
 #include <protocol/TBinaryProtocol.h>
 #include <iostream>
 #include <sstream>
