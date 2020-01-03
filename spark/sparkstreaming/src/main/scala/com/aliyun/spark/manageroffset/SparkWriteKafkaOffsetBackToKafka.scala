@@ -24,7 +24,12 @@ object SparkWriteKafkaOffsetBackToKafka {
     // SparkStreaming 批处理的时间间隔
     val duration = args(3).toInt * 1000
 
+    //通过spark.streaming.kafka.maxRatePerPartition参数限流
+    //    * The spark configuration spark.streaming.kafka.maxRatePerPartition gives the maximum number
+    //    *  of messages
+    //    * per second that each '''partition''' will accept.
     val sparkConf = new SparkConf().setAppName("KafkaOffsetManager")
+      .set("spark.streaming.kafka.maxRatePerPartition", "2000")
     val ssc = new StreamingContext(sparkConf, new Duration(duration))
 
     val messages = init_kafka(brokers,groupId,topic,ssc)
@@ -67,12 +72,19 @@ object SparkWriteKafkaOffsetBackToKafka {
     val kafkaParams = Map[String, Object](
       ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> brokers,
       ConsumerConfig.GROUP_ID_CONFIG -> groupId,
+      //通过kafka 参数限流读取的行数
       ConsumerConfig.MAX_POLL_RECORDS_CONFIG -> "5000",
       ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
       ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+      //消费kakfa的数据的offset策略。
       ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> "earliest",
       ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG -> (false: java.lang.Boolean)
     )
+
+    //通过kafka参数限制读取的大小。
+//    ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG -> "1024"
+//    ConsumerConfig.FETCH_MIN_BYTES_CONFIG -> "20000"
+//    ConsumerConfig.FETCH_MAX_BYTES_CONFIG -> "4000"
 
     val locationStrategy = LocationStrategies.PreferConsistent
     val consumerStrategy = ConsumerStrategies.Subscribe[String, String](topicList.toSet, kafkaParams)
