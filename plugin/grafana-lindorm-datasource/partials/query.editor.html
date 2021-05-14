@@ -1,0 +1,81 @@
+<query-editor-row query-ctrl="ctrl" class="cassandra-datasource-query-row" has-text-edit-mode="true">
+    <div class="gf-form-inline" ng-if="!ctrl.target.rawQuery">         
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                Keyspace
+                <info-popover>Specify keyspace to work with.</info-popover>
+            </label>
+            <input class="gf-form-input width-28" ng-model="ctrl.target.keyspace" placeholder="keyspace_name" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                Table
+                <info-popover>Specify table to work with.</info-popover>
+            </label>
+            <input class="gf-form-input width-28" ng-model="ctrl.target.table" placeholder="table_name" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                Time Column
+                <info-popover>Specify name of a timestamp column to identify time (created_at, time etc.)</info-popover>
+            </label>
+            <gf-form-dropdown model="ctrl.target.columnTime"
+                css-class="width-28 min-width-28"
+                allow-custom="true"
+                lookup-text="true"
+                get-options="ctrl.getOptions(ctrl.target.keyspace, ctrl.target.table, 'timestamp')"
+                on-change="ctrl.onChangeInternal()">
+            </gf-form-dropdown>
+         </div>
+         <div class="gf-form">
+            <label class="gf-form-label width-12">
+                Value Column
+                <info-popover>Specify name of a numeric column to retrieve value (temperature, price etc.)</info-popover>
+            </label>
+            <gf-form-dropdown model="ctrl.target.columnValue"
+                css-class="width-28 min-width-28"
+                allow-custom="true"
+                lookup-text="true"
+                get-options="ctrl.getOptions(ctrl.target.keyspace, ctrl.target.table, 'int')"
+                on-change="ctrl.onChangeInternal()">
+            </gf-form-dropdown>
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                ID Column
+                <info-popover>Specify name of a UUID column to identify the row (id, sensor_id etc.)</info-popover>
+            </label>
+            <gf-form-dropdown model="ctrl.target.columnId"
+                css-class="width-28 min-width-28"
+                allow-custom="true"
+                lookup-text="true"
+                get-options="ctrl.getOptions(ctrl.target.keyspace, ctrl.target.table, 'uuid')"
+                on-change="ctrl.onChangeInternal()">
+            </gf-form-dropdown>
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                ID Value
+                <info-popover>Specify UUID <b>value</b> of a column to identify the row (f.e. 123e4567-e89b-12d3-a456-426655440000)</info-popover>
+            </label>
+            <input class="gf-form-input width-28" ng-model="ctrl.target.valueId" placeholder="123e4567-e89b-12d3-a456-426655440000" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-12">
+                Allow filtering
+                <info-popover>"Allow Filtering" can be <a href="https://www.datastax.com/blog/allow-filtering-explained" target="_blank">dangerous practice</a> and we strongly discourage using it.</info-popover>
+            </label>
+            <select class="gf-form-input width-28" ng-model="ctrl.target.filtering" spellcheck="false" ng-blur="ctrl.onChangeInternal()">
+                <option ng-selected="0" value="">False</option>
+                <option ng-value="true">True</option>                   
+            </select>                                    
+        </div>
+        <input class="gf-form-input" type="hidden" ng-model="ctrl.target.target" />
+    </div>
+    <div class="gf-form-inline" ng-if="ctrl.target.rawQuery">
+        <div class="gf-form">
+            <label class="gf-form-label width-12">Raw CQL</label>
+            <textarea class="gf-form-input width-28" cols="10" rows="10" ng-model="ctrl.target.target" placeholder="select timestamp, value from keyspace.table where id=123e4567;" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+        </div>
+    </div>
+</query-editor-row>
