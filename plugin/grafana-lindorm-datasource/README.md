@@ -70,7 +70,7 @@ Query Editor是查询数据的更强大的方式。要启用Query Editor，请�
 
 <img src="https://user-images.githubusercontent.com/1742301/102781863-a8bd4b80-4398-11eb-8c28-4d06a1f29279.png" height="150">
 
-Query Editor解锁了CQL的所有可能性，包括使用定义的函数、聚合等。
+Query Editor兼容CQL的语法，详见Lindorm官方文档。
 
 例如：
 ```
@@ -83,3 +83,29 @@ SELECT id, CAST(value as double), created_at FROM test.test WHERE id IN (99051fe
 3. Timestamp - 第三个值必须是值的timestamp。所有其他属性将被忽略。
 
 要按时间过滤数据，使用$__timeFrom和$__timeTo占位符，就像例子中一样。数据源将用panel上的时间值替换它们。注意 添加占位符很重要，否则查询将试图获取整个时间段的数据。不要试图自己指定时间范围，只需添加占位符，指定时间限制是grafana的工作。
+
+### 操作示例
+
+假如想绘制一张包含各地气温随时间变化曲线的图标，数据库按照如下方式设计，包含temp气温，local_time测量时间，city城市,id索引这几个字段：
+```
+create table log.temp
+(
+	local_time timestamp,
+	temp int, 
+	id int, 
+	city text, 
+	primary key ((id))
+)
+```
+在Query Editor中，我们按如下方式编写CQL语句:
+```
+SELECT city, CAST(temp as double), local_time FROM log.temp WHERE local_time > $__timeFrom and local_time < $__timeTo  ALLOW FILTERING
+```
+查询到的数据如下：
+
+<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/img/temp_table.PNG">
+
+在Visualization中选择Graph，并调整时间段，得到的图表如下所示：
+
+<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/img/temp_query.PNG">
+
