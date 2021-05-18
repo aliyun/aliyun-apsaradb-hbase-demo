@@ -103,9 +103,9 @@ SELECT city, CAST(temp as double), local_time FROM log.temp WHERE local_time > $
 ```
 查询到的数据如下：
 
-<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/img/temp_table.PNG">
+<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/plugin/grafana-lindorm-datasource/img/temp_table.PNG">
 
 在Visualization中选择Graph，并调整时间段，得到的图表如下所示：
 
-<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/img/temp_query.PNG">
+<img src="https://github.com/aliyun/aliyun-apsaradb-hbase-demo/raw/master/plugin/grafana-lindorm-datasource/img/temp_query.PNG">
 
