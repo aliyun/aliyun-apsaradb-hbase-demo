@@ -1,0 +1,9 @@
+
+spring:
+  resources:
+    static-locations: classpath:/
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 400MB
+      max-request-size: 400MB
