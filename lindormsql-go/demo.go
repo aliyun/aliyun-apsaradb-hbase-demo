@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+    _ "github.com/apache/calcite-avatica-go/v5"
 )
 
 func main() {
