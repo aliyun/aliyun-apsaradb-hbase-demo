@@ -1,34 +1,33 @@
 {
-  "name": "Aliyun Lindorm",
-  "id": "aliyun-lindorm-datasource",
   "type": "datasource",
-
-  "backend": true,
-  "alerting": false,
-  "executable": "lindorm-plugin",
+  "name": "Lindorm Datasource",
+  "id": "lindorm-lql-datasource",
   "metrics": true,
-  "annotations": false,
-
+  "backend": true,
+  "alerting": true,
+  "category": "sql",
+  "executable": "lindorm_lql_datasource",
   "info": {
-    "description": "Aliyun Lindorm Datasource for Grafana",
-    "keywords": ["Lindorm", "Aliyun Lindorm", "datasource"],
+    "description": "lindorm-lql-datasource",
     "author": {
       "name": "Aliyun",
-      "url": "https://github.com/aliyun"
+      "url": "https://github.com/aliyun/"
     },
+    "keywords": ["lindorm", "lql"],
     "logos": {
       "small": "img/aliyun.svg",
       "large": "img/aliyun.svg"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/aliyun/aliyun-apsaradb-hbase-demo"},
-      {"name": "MIT License", "url": "https://github.com/HadesArchitect/grafana-cassandra-source/blob/master/LICENSE"}
+      {
+        "name": "Website",
+        "url": "https://github.com/aliyun/aliyun-apsaradb-hbase-demo/tree/master/plugin/grafana-lindorm-datasource"
+      }
     ],
-    "version": "1.0.0",
-    "updated": "2021-05-09"
+    "version": "2.0.0"
   },
   "dependencies": {
-    "grafanaDependency": ">=5.0.0",
-    "plugins": [ ]
+    "grafanaDependency": ">=7.3.3",
+    "plugins": []
   }
 }

@@ -1,193 +1,131 @@
-import logging
-import os
-import ssl
-from base64 import b64decode
-from tempfile import NamedTemporaryFile
+from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.utils import JSONEncoder, json_dumps, json_loads
+import logging
+import re
 
 logger = logging.getLogger(__name__)
 
 try:
-    from cassandra.cluster import Cluster
-    from cassandra.auth import PlainTextAuthProvider
-    from cassandra.util import sortedset
+    import phoenixdb
+    from phoenixdb.errors import *
 
     enabled = True
+
 except ImportError:
     enabled = False
 
-
-def generate_ssl_options_dict(protocol, cert_path=None):
-    ssl_options = {
-        'ssl_version': getattr(ssl, protocol)
-    }
-    if cert_path is not None:
-        ssl_options['ca_certs'] = cert_path
-        ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
-    return ssl_options
-
-
-class LindormJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, sortedset):
-            return list(o)
-        return super(LindormJSONEncoder, self).default(o)
+TYPES_MAPPING = {
+    "VARCHAR": TYPE_STRING,
+    "CHAR": TYPE_STRING,
+    "BINARY": TYPE_STRING,
+    "VARBINARY": TYPE_STRING,
+    "BOOLEAN": TYPE_BOOLEAN,
+    "TIME": TYPE_DATETIME,
+    "DATE": TYPE_DATETIME,
+    "TIMESTAMP": TYPE_DATETIME,
+    "UNSIGNED_TIME": TYPE_DATETIME,
+    "UNSIGNED_DATE": TYPE_DATETIME,
+    "UNSIGNED_TIMESTAMP": TYPE_DATETIME,
+    "INTEGER": TYPE_INTEGER,
+    "UNSIGNED_INT": TYPE_INTEGER,
+    "BIGINT": TYPE_INTEGER,
+    "UNSIGNED_LONG": TYPE_INTEGER,
+    "TINYINT": TYPE_INTEGER,
+    "UNSIGNED_TINYINT": TYPE_INTEGER,
+    "SMALLINT": TYPE_INTEGER,
+    "UNSIGNED_SMALLINT": TYPE_INTEGER,
+    "FLOAT": TYPE_FLOAT,
+    "UNSIGNED_FLOAT": TYPE_FLOAT,
+    "DOUBLE": TYPE_FLOAT,
+    "UNSIGNED_DOUBLE": TYPE_FLOAT,
+    "DECIMAL": TYPE_FLOAT,
+}
 
 
 class Lindorm(BaseQueryRunner):
-    noop_query = "SELECT dateof(now()) FROM system.local"
-
-    @classmethod
-    def enabled(cls):
-        return enabled
+    noop_query = "select 1"
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
-                "host": {"type": "string"},
-                "port": {"type": "number", "default": 9042},
-                "keyspace": {"type": "string", "title": "Keyspace name"},
-                "username": {"type": "string", "title": "Username"},
-                "password": {"type": "string", "title": "Password"},
-                "protocol": {
-                    "type": "number",
-                    "title": "Protocol Version",
-                    "default": 3,
-                },
-                "timeout": {"type": "number", "title": "Timeout", "default": 10},
-                "useSsl": {"type": "boolean", "title": "Use SSL", "default": False},
-                "sslCertificateFile": {
-                    "type": "string",
-                    "title": "SSL Certificate File"
-                },
-                "sslProtocol": {
-                    "type": "string",
-                    "title": "SSL Protocol",
-                    "enum": [
-                        "PROTOCOL_SSLv23",
-                        "PROTOCOL_TLS",
-                        "PROTOCOL_TLS_CLIENT",
-                        "PROTOCOL_TLS_SERVER",
-                        "PROTOCOL_TLSv1",
-                        "PROTOCOL_TLSv1_1",
-                        "PROTOCOL_TLSv1_2",
-                    ],
-                },
+                "url": {"type": "string"},
+                "port": {"type": "number", "default": 30060},
             },
-            "required": ["keyspace", "host", "useSsl"],
-            "secret": ["sslCertificateFile"],
+            "required": ["url"],
         }
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     @classmethod
     def type(cls):
         return "Lindorm"
 
     def get_schema(self, get_stats=False):
-        query = """
-        select release_version from system.local;
-        """
-        results, error = self.run_query(query, None)
-        results = json_loads(results)
-        release_version = results["rows"][0]["release_version"]
-
-        query = """
-        SELECT table_name, column_name
-        FROM system_schema.columns
-        WHERE keyspace_name ='{}';
-        """.format(
-            self.configuration["keyspace"]
-        )
-
-        if release_version.startswith("2"):
-            query = """
-                SELECT columnfamily_name AS table_name, column_name
-                FROM system.schema_columns
-                WHERE keyspace_name ='{}';
-                """.format(
-                self.configuration["keyspace"]
-            )
-
-        results, error = self.run_query(query, None)
-        results = json_loads(results)
-
         schema = {}
+        query = """
+        SELECT TABLE_SCHEM, TABLE_NAME, COLUMN_NAME
+        FROM SYSTEM.CATALOG
+        WHERE TABLE_SCHEM IS NULL OR TABLE_SCHEM != 'SYSTEM' AND COLUMN_NAME IS NOT NULL
+        """
+
+        results, error = self.run_query(query, None)
+
+        if error is not None:
+            raise Exception("Failed getting schema.")
+
+        results = json_loads(results)
+
         for row in results["rows"]:
-            table_name = row["table_name"]
-            column_name = row["column_name"]
+            table_name = "{}.{}".format(row["TABLE_SCHEM"], row["TABLE_NAME"])
+
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(column_name)
+
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
         return list(schema.values())
 
     def run_query(self, query, user):
-        connection = None
-        cert_path = self._generate_cert_file()
-        if self.configuration.get("username", "") and self.configuration.get(
-            "password", ""
-        ):
-            auth_provider = PlainTextAuthProvider(
-                username="{}".format(self.configuration.get("username", "")),
-                password="{}".format(self.configuration.get("password", "")),
+        logger.error("Lindorm running query: %s", query)
+        connection = phoenixdb.connect(
+            url=self.configuration.get("url", "")+":"+str(self.configuration.get("port", "")), autocommit=True
+        )
+
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute(self.del_comments(query))
+            column_tuples = [
+                (i[0], TYPES_MAPPING.get(i[1], None)) for i in cursor.description
+            ]
+            columns = self.fetch_columns(column_tuples)
+            rows = [
+                dict(zip(([column["name"] for column in columns]), r))
+                for i, r in enumerate(cursor.fetchall())
+            ]
+            data = {"columns": columns, "rows": rows}
+            json_data = json_dumps(data)
+            error = None
+            cursor.close()
+        except Error as e:
+            json_data = None
+            error = "code: {}, sql state:{}, message: {}, Query:{}".format(
+                e.code, e.sqlstate, str(e), query
             )
-            connection = Cluster(
-                [self.configuration.get("host", "")],
-                auth_provider=auth_provider,
-                port=self.configuration.get("port", ""),
-                protocol_version=self.configuration.get("protocol", 3),
-                ssl_options=self._get_ssl_options(cert_path),
-            )
-        else:
-            connection = Cluster(
-                [self.configuration.get("host", "")],
-                port=self.configuration.get("port", ""),
-                protocol_version=self.configuration.get("protocol", 3),
-                ssl_options=self._get_ssl_options(cert_path),
-            )
-        session = connection.connect()
-        session.set_keyspace(self.configuration["keyspace"])
-        session.default_timeout = self.configuration.get("timeout", 10)
-        logger.debug("lindorm running query: %s", query)
-        result = session.execute(query)
-        self._cleanup_cert_file(cert_path)
+        finally:
+            if connection:
+                connection.close()
 
-        column_names = result.column_names
+        return json_data, error
 
-        columns = self.fetch_columns([(c, "string") for c in column_names])
-
-        rows = [dict(zip(column_names, row)) for row in result]
-
-        data = {"columns": columns, "rows": rows}
-        json_data = json_dumps(data, cls=LindormJSONEncoder)
-
-        return json_data, None
-
-    def _generate_cert_file(self):
-        cert_encoded_bytes = self.configuration.get("sslCertificateFile", None)
-        if cert_encoded_bytes:
-            with NamedTemporaryFile(mode='w', delete=False) as cert_file:
-                cert_bytes = b64decode(cert_encoded_bytes)
-                cert_file.write(cert_bytes.decode("utf-8"))
-            return cert_file.name
-        return None
-
-    def _cleanup_cert_file(self, cert_path):
-        if cert_path:
-            os.remove(cert_path)
-
-    def _get_ssl_options(self, cert_path):
-        ssl_options = None
-        if self.configuration.get("useSsl", False):
-            ssl_options = generate_ssl_options_dict(
-                protocol=self.configuration["sslProtocol"],
-                cert_path=cert_path
-            )
-        return ssl_options
-
-
+    def del_comments(self, s):
+        out = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
+        out = re.sub(r'(//.*)', '', out)
+        return out
 
 register(Lindorm)
