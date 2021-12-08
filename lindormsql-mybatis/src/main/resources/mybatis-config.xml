@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <!-- 配置数据库连接信息 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.aliyun.lindorm.table.client.Driver"/>
+                <property name="url" value="控制台获取的Lindorm宽表SQL地址"/>
+                <property name="username" value="控制台获取的数据库用户名"/>
+                <property name="password" value="控制台获取的数据库密码"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper class="UserMapper"/>
+    </mappers>
+</configuration>
