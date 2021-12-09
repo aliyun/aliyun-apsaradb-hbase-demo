@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.url">控制台获取的Lindorm宽表SQL地址</property>
+        <property name="connection.driver_class">com.aliyun.lindorm.table.client.Driver</property>
+        <property name="connection.username">控制台获取的数据库用户名</property>
+        <property name="connection.password">控制台获取的数据库密码</property>
+        <property name="dialect">com.felix.lindorm.LindormDialect</property>
+        <!--        <property name="hibernate.hbm2ddl.auto">create</property>-->
+        <mapping class="entity.UserEntity"/>
+    </session-factory>
+</hibernate-configuration>
