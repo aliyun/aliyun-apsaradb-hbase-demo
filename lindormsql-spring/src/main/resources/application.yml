@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driver-class-name: com.aliyun.lindorm.table.client.Driver
+    url: 控制台获取的Lindorm宽表SQL地址
+    username: 控制台获取的数据库用户名
+    password: 控制台获取的数据库密码
+
+  jpa:
+    database-platform: com.felix.lindorm.LindormDialect
