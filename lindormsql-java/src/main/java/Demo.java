@@ -24,13 +24,9 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.Random;
 
-public class Demo
-{
-    private static final String NAMESPACE = "sql_demo";
-
-    public static final String LINDORM_JDBC_URL =
-            "地址";
-
+public class Demo {
+    public static final String LINDORM_JDBC_URL = "地址";
+    private static final String DATABASE = "数据库";
     private static final String USER_NAME = "账户";
     private static final String PASSWORD = "密码";
 
@@ -57,6 +53,7 @@ public class Demo
         Properties properties = new Properties();
         properties.put("user", USER_NAME);
         properties.put("password", PASSWORD);
+        properties.put("database", DATABASE);
         pconn = DriverManager.getConnection(LINDORM_JDBC_URL, properties);
         System.out.println("init ok.");
     }
@@ -84,8 +81,6 @@ public class Demo
         Statement statement = null;
         try {
             statement = pconn.createStatement();
-            //使用特定schema,默认是default
-            statement.execute("use " + NAMESPACE);
             int ret = statement.executeUpdate(sql);
             System.out.println(ret);
         } catch (Exception e) {
