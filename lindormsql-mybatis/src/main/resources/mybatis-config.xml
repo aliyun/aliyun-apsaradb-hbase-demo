@@ -12,6 +12,8 @@
                 <property name="url" value="控制台获取的Lindorm宽表SQL地址"/>
                 <property name="username" value="控制台获取的数据库用户名"/>
                 <property name="password" value="控制台获取的数据库密码"/>
+                <!--配置默认数据库-->
+                <property name="driver.database" value="default"/>
             </dataSource>
         </environment>
     </environments>
