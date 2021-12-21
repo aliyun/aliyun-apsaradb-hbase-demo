@@ -127,6 +127,7 @@ public class Operation {
         }
     }
 
+    // Lindorm 2.2.16版本后,在执行删除表操作之前需要执行OFFLINE TABLE操作。
     public void dropTable() throws SQLException {
         String sql = "drop table " + tableName;
         System.out.println(sql);
