@@ -8,8 +8,10 @@
         <property name="connection.driver_class">com.aliyun.lindorm.table.client.Driver</property>
         <property name="connection.username">控制台获取的数据库用户名</property>
         <property name="connection.password">控制台获取的数据库密码</property>
-        <property name="dialect">com.felix.lindorm.LindormDialect</property>
-        <!--        <property name="hibernate.hbm2ddl.auto">create</property>-->
+        <!--配置默认数据库-->
+        <property name="connection.database">default</property>
+        <property name="dialect">com.aliyun.lindorm.LindormDialect</property>
+        <!--<property name="hibernate.hbm2ddl.auto">create</property>-->
         <mapping class="entity.UserEntity"/>
     </session-factory>
 </hibernate-configuration>
