@@ -1,9 +1,33 @@
 spring:
   datasource:
-    driver-class-name: com.aliyun.lindorm.table.client.Driver
-    url: 控制台获取的Lindorm宽表SQL地址
-    username: 控制台获取的数据库用户名
-    password: 控制台获取的数据库密码
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.aliyun.lindorm.table.client.Driver
+      url: 控制台获取的Lindorm宽表SQL地址
+      username: 控制台获取的数据库用户名
+      password: 控制台获取的数据库密码
+      connectionProperties: database=default
+      initialSize: 5
+      maxActive: 10
+      min-idle: 5
+      maxWait: 3000
+      validationQuery: show databases
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+  #      filters: stat,wall,slf4j
+  #      stat-view-servlet:
+  #        enabled: true
+  #        reset-enable: false
+  #        login-username: amdin
+  #        login-password: amdin
+  #        url-pattern: /druid/*
+  #        allow: ""
+  #      web-stat-filter:
+  #        enabled: true
+  #        url-pattern: /*
+  #        exclusions: "*.js,*.gif,*.jpg,*.css,/druid/*"
 
   jpa:
-    database-platform: com.felix.lindorm.LindormDialect
+    database-platform: com.aliyun.lindorm.LindormDialect
+    open-in-view: false

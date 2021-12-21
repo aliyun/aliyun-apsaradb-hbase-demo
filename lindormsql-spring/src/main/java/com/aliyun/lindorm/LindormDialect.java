@@ -1,4 +1,4 @@
-package com.felix.lindorm;
+package com.aliyun.lindorm;
 
 import org.hibernate.dialect.Dialect;
 
