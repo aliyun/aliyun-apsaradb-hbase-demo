@@ -4,9 +4,6 @@ go 1.17
 
 require github.com/apache/calcite-avatica-go/v5 v5.0.0
 
-// 替换成本地文件
-replace github.com/apache/calcite-avatica-go/v5 => ../calcite-avatica-go
-
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/creack/pty v1.1.11 // indirect

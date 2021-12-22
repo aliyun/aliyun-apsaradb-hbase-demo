@@ -3,12 +3,11 @@ package main
 import (
 	"conn-lindorm/mapper"
 	"fmt"
-	_ "github.com/apache/calcite-avatica-go/v5"
 )
 
 func main() {
-	var u mapper.UserManager = &mapper.UserManagerImpl{}
-	err := u.Connect("http://localhost:30060/default?user=sql&password=test")
+	u := mapper.NewUserManager()
+	err := u.Connect("http://localhost:30060", "sql", "test", "default")
 	if err != nil {
 		fmt.Println("connect error:", err.Error())
 		return

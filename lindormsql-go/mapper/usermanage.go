@@ -2,11 +2,12 @@ package mapper
 
 import (
 	"database/sql"
+	avatica "github.com/apache/calcite-avatica-go/v5"
 	"log"
 )
 
 type UserManager interface {
-	Connect(string) error
+	Connect(string, string, string, string) error
 	Add(int, string, int) error
 	Delete(int) error
 	Update(int, string, int) error
@@ -16,14 +17,20 @@ type UserManagerImpl struct {
 	db *sql.DB
 }
 
-func (u *UserManagerImpl) Connect(url string) error {
-	var err error
-	u.db, err = sql.Open("avatica", url)
-	if err != nil {
-		log.Fatalf("error connecting: %s", err.Error())
-		return err
+func NewUserManager() UserManager {
+	return &UserManagerImpl{}
+}
+
+func (u *UserManagerImpl) Connect(url, user, password, database string) error {
+	c := avatica.NewConnector(url).(*avatica.Connector)
+	c.Info = map[string]string{
+		"user":     user,
+		"password": password,
+		"database": database,
 	}
-	_, err = u.db.Exec("create table if not exists user_test(id int, name varchar,age int, primary key(id))")
+
+	u.db = sql.OpenDB(c)
+	_, err := u.db.Exec("create table if not exists user_test(id int, name varchar,age int, primary key(id))")
 	if err != nil {
 		log.Fatalf("error creating: %s", err.Error())
 		return err

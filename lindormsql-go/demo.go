@@ -3,18 +3,21 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
-    _ "github.com/apache/calcite-avatica-go/v5"
+	avatica "github.com/apache/calcite-avatica-go/v5"
 )
 
 func main() {
-db, err := sql.Open("avatica", "地址")
-if err != nil {
-		log.Fatalf("error connecting: %s", err.Error())
+	c := avatica.NewConnector("http://localhost:30060").(*avatica.Connector)
+	c.Info = map[string]string{
+		"user":     "sql",
+		"password": "test",
+		"database": "default",
 	}
-db.Exec("CREATE TABLE if not exists tst (id INT, flt FLOAT, bool BOOLEAN, str VARCHAR, primary key(id))")
-db.Exec("UPSERT INTO tst (id, flt, bool, str) VALUES (0, 0.0, false, 'xx')")
-rows, err:= db.Query("SELECT * FROM tst")
-defer rows.Close()
-fmt.Println("Rows :", rows)
+
+	db := sql.OpenDB(c)
+	db.Exec("CREATE TABLE if not exists tst (id INT, flt FLOAT, bool BOOLEAN, str VARCHAR, primary key(id))")
+	db.Exec("UPSERT INTO tst (id, flt, bool, str) VALUES (0, 0.0, false, 'xx')")
+	rows, _ := db.Query("SELECT * FROM tst")
+	defer rows.Close()
+	fmt.Println("Rows :", rows)
 }
