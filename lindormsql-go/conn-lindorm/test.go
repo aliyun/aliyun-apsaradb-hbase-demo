@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var u mapper.UserManager = &mapper.UserManagerImpl{}
-	err := u.Connect("http://localhost:30060")
+	err := u.Connect("http://localhost:30060/default?user=sql&password=test")
 	if err != nil {
 		fmt.Println("connect error:", err.Error())
 		return
