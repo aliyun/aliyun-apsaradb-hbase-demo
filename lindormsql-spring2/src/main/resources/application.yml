@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.aliyun.lindorm.table.client.Driver
+      url: 数据库地址
+      username: 数据库用户名
+      password: 数据库密码
+      connectionProperties: database=test
+      initialSize: 5
+      maxActive: 10
+      min-idle: 5
+      maxWait: 3000
+      validationQuery: show databases
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
