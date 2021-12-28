@@ -61,4 +61,5 @@ func main() {
 		checkErr("scan", err)
 		fmt.Println("id:", id, "name:", name, "age:", age)
 	}
+	checkErr("close rows", rows.Close())
 }
