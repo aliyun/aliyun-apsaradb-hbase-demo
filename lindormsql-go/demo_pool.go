@@ -66,7 +66,7 @@ func (as *ProbeStmt) Open(ctx context.Context) error {
 	if as.num == 0 {
 		as.num = 1
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	as.stop = cancel
 	as.isOpen = true
 	go as.aliveTask(ctx)
