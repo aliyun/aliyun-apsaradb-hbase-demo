@@ -140,7 +140,7 @@ func operation(db *sql.DB, ts int) {
 }
 
 func main() {
-	databaseUrl := "http://11.158.142.200:30060" // 这里的链接地址与lindorm-cli的链接地址比，需要去掉http之前的字符串
+	databaseUrl := "http://localhost:30060" // 这里的链接地址与lindorm-cli的链接地址比，需要去掉http之前的字符串
 	conn := avatica.NewConnector(databaseUrl).(*avatica.Connector)
 	conn.Info = map[string]string{
 		"user":     "test",    // 数据库用户名
@@ -158,7 +158,11 @@ func main() {
 			IdleConnTimeout:       10 * time.Minute, // 连接空闲丢弃时间,了解更多请参考结构体Transport的定义
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-			MaxIdleConnsPerHost:   10000,
+			/*
+				注意这个很关键，测试发现这个值会限制连接数量，导致下面的设置无效，这里大一点关系不大，但不能不设置
+				其它字段比如MaxIdleConns,不设置或者0值，意味着不会限制连接数量，那就不设置好了
+			*/
+			MaxIdleConnsPerHost: 10000,
 		},
 	}
 	// sql.DB本身就是一个pool的设计，唯一的缺点是没有 连接探活机制
