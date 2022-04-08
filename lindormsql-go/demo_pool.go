@@ -58,7 +58,7 @@ func (as *ProbeStmt) Open(ctx context.Context) error {
 		ctx = context.Background()
 	}
 	if as.interval == 0 {
-		as.interval = 10 * time.Minute
+		as.interval = time.Minute
 	}
 	if as.sql == "" {
 		as.sql = "show databases"
