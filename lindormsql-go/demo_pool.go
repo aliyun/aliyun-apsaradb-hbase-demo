@@ -107,7 +107,7 @@ func checkErr(remark string, err error) {
 
 var wg sync.WaitGroup
 
-// 推荐使用prepare方式，由于客户端缺陷，普通statement方式容易造成未关闭的statement大量堆积，甚至会让数据库不可用。如果并发性不高，暂时没发现普通statement有啥问题
+// 推荐使用prepare方式
 func operation(db *sql.DB, ts int) {
 	_, err := db.Exec("create table if not exists user_test(id int, name varchar,age int, primary key(id))")
 	checkErr("create table", err)
