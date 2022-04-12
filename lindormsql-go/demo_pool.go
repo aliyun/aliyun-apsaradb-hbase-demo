@@ -1,189 +1,187 @@
 package main
 
 import (
-	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	avatica "github.com/apache/calcite-avatica-go/v5"
 	"log"
-	"net"
-	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
 
-// ProbeStmt 定时探活
-type ProbeStmt struct {
-	db       *sql.DB
-	interval time.Duration // 探活时间间隔
-	mu       sync.RWMutex  // 保护字段，并发情况下使用
-	sql      string        // 探活执行的sql
-	num      int           // 执行sql的并发数
-	isOpen   bool
-	stop     func() // 停止探活
+type connPool struct {
+	connList     []*sql.DB // 存放连接
+	maxOpen      int       // 允许的最大连接数
+	muNumOpen    sync.Mutex
+	numOpen      int // 已有的连接数量，包括分配出去的
+	muNumFree    sync.Mutex
+	numFree      int                     // 空闲连接数量
+	head         int                     // 头部拿连接
+	tail         int                     // 尾部插入连接
+	connRequests map[uint64]chan *sql.DB // 阻塞
+	muRequest    sync.Mutex
+	nextRequest  uint64
+	info         *ConnInfo
+}
+type ConnInfo struct {
+	url      string
+	user     string
+	password string
+	database string
 }
 
-func (as *ProbeStmt) SetInterval(d time.Duration) {
-	if d < 0 {
-		d = time.Minute
+func (cp *connPool) GetConn() (*sql.DB, error) {
+	// 返回空闲连接
+	cp.muNumFree.Lock()
+	if cp.numFree > 0 {
+		db := cp.connList[cp.head]
+		cp.head = (cp.head + 1) % cp.maxOpen
+		cp.numFree--
+		cp.muNumFree.Unlock()
+		return db, nil
 	}
-	as.interval = d
-}
+	cp.muNumFree.Unlock()
+	// 创建新的连接
+	cp.muNumOpen.Lock()
+	if cp.numOpen < cp.maxOpen {
+		cp.numOpen++
+		cp.muNumOpen.Unlock()
+		db := cp.getNewSqlDB()
+		return db, nil
+	}
+	cp.muNumOpen.Unlock()
 
-func (as *ProbeStmt) SetSql(s string) {
-	if s == "" {
-		s = "show databases"
-	}
-	as.sql = s
-}
-func (as *ProbeStmt) SetDb(db *sql.DB) {
-	as.db = db
-}
-
-func (as *ProbeStmt) SetNum(n int) {
-	if n < 0 {
-		n = 1
-	}
-	as.num = n
-}
-
-func (as *ProbeStmt) Open(ctx context.Context) error {
-	if as.isOpen {
-		return fmt.Errorf("probe is open")
-	}
-	if as.db == nil {
-		return fmt.Errorf("db is null")
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if as.interval == 0 {
-		as.interval = time.Minute
-	}
-	if as.sql == "" {
-		as.sql = "show databases"
-	}
-	if as.num == 0 {
-		as.num = 1
-	}
-	ctx, cancel := context.WithCancel(ctx)
-	as.stop = cancel
-	as.isOpen = true
-	go as.aliveTask(ctx)
-	return nil
-}
-
-func (as *ProbeStmt) aliveTask(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-time.After(as.interval):
-			log.Println("________________________________探活执行 ", as.sql, as.interval)
-			// 比如想保证n个连接空闲时间是活的，那就并发执行n个Exec
-			for i := 0; i < as.num; i++ {
-				go func() {
-					_, err := as.db.Exec(as.sql)
-					if err != nil {
-						return
-					}
-				}()
-			}
+	// 等待
+	req := make(chan *sql.DB, 1)
+	cp.muRequest.Lock()
+	cp.connRequests[cp.nextRequest] = req
+	cp.nextRequest++
+	cp.muRequest.Unlock()
+	select {
+	case ret, ok := <-req:
+		if !ok {
+			return nil, errors.New("req is not ok")
 		}
+		if ret == nil {
+			return nil, errors.New("ret is null")
+		}
+		return ret, nil
 	}
 }
 
-func (as *ProbeStmt) Close() {
-	log.Println("________________________________探活关闭 ")
-	as.stop()
-	as.isOpen = false
+func (cp *connPool) ReleaseConn(db *sql.DB) {
+	cp.muRequest.Lock()
+	if c := len(cp.connRequests); c > 0 {
+		var req chan *sql.DB
+		var reqKey uint64
+		for reqKey, req = range cp.connRequests {
+			break
+		}
+		delete(cp.connRequests, reqKey) // Remove from pending requests.
+		cp.muRequest.Unlock()
+		req <- db
+		return
+
+	}
+	cp.muRequest.Unlock()
+	cp.muNumFree.Lock()
+	cp.connList[cp.tail] = db
+	cp.tail = (cp.tail + 1) % cp.maxOpen
+	cp.numFree++
+	cp.muNumFree.Unlock()
 }
 
-func checkErr(remark string, err error) {
-	if err != nil {
-		log.Println(remark + ":" + err.Error())
+func (cp *connPool) Close() error {
+	for _, req := range cp.connRequests {
+		close(req)
 	}
+	var err error
+	for cp.head != cp.tail {
+		err = cp.connList[cp.head].Close()
+		cp.head = (cp.head + 1) % cp.maxOpen
+	}
+	return err
 }
 
-var wg sync.WaitGroup
-
-// 推荐使用prepare方式
-func operation(db *sql.DB, ts int) {
-	_, err := db.Exec("create table if not exists user_test(id int, name varchar,age int, primary key(id))")
-	checkErr("create table", err)
-
-	// 添加数据
-	stmt, err := db.Prepare("upsert into user_test(id,name,age) values(?,?,?)")
-	checkErr("prepare upsert", err)
-	_, err = stmt.Exec(1, "zhangsan", 17)
-	_, err = stmt.Exec(2, "lisi", 18)
-	_, err = stmt.Exec(3, "wanger", 19)
-	checkErr("upsert stmt exec", err)
-	checkErr("upsert close statement", stmt.Close())
-
-	var id int
-	var name string
-	var age int
-	// 查询数据， 并发性高，请改成prepare方式
-	querySql := "select * from user_test"
-	rows, err := db.Query(querySql)
-	fmt.Println(querySql)
-	checkErr("select", err)
-	for rows.Next() {
-		err = rows.Scan(&id, &name, &age)
-		checkErr("scan", err)
-		fmt.Println("id:", id, "name:", name, "age:", age)
+func (cp *connPool) getNewSqlDB() *sql.DB {
+	conn := avatica.NewConnector(cp.info.url).(*avatica.Connector)
+	conn.Info = map[string]string{
+		"user":     cp.info.user,
+		"password": cp.info.password,
+		"database": cp.info.database,
 	}
-	checkErr("close rows", rows.Close())
-	time.Sleep(time.Duration(ts) * time.Second)
-	wg.Done()
+	return sql.OpenDB(conn)
+}
+
+func OpenConnPool(info *ConnInfo, maxOpen int) *connPool {
+	if maxOpen < 1 {
+		maxOpen = 1
+	}
+	return &connPool{
+		connList:     make([]*sql.DB, maxOpen),
+		maxOpen:      maxOpen,
+		info:         info,
+		connRequests: make(map[uint64]chan *sql.DB),
+	}
 }
 
 func main() {
 	databaseUrl := "http://localhost:30060" // 这里的链接地址与lindorm-cli的链接地址比，需要去掉http之前的字符串
-	conn := avatica.NewConnector(databaseUrl).(*avatica.Connector)
-	conn.Info = map[string]string{
-		"user":     "test",    // 数据库用户名
-		"password": "test",    // 数据库密码
-		"database": "default", // 初始化连接指定的默认database
+	connInfo := &ConnInfo{
+		url:      databaseUrl,
+		user:     "test",    // 数据库用户名
+		password: "test",    // 数据库密码
+		database: "default", // 初始化连接指定的默认database
 	}
-	conn.Client = &http.Client{
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-				DualStack: true,
-			}).DialContext,
-			IdleConnTimeout:       10 * time.Minute, // 连接空闲丢弃时间,了解更多请参考结构体Transport的定义
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-			/*
-				注意这个很关键，测试发现这个值会限制连接数量，导致下面的设置无效，这里大一点关系不大，但不能不设置
-				其它字段比如MaxIdleConns,不设置或者0值，意味着不会限制连接数量，那就不设置好了
-			*/
-			MaxIdleConnsPerHost: 10000,
-		},
+	cp := OpenConnPool(connInfo, 100) // 100个连接的pool
+	defer func() {
+		checkPrepareErr("close conn pool", cp.Close())
+	}()
+	var wg sync.WaitGroup
+	var totalTime int64
+	var sumTime int64
+	var mu sync.Mutex
+	num := 100
+	ti := time.Now().Unix()
+	for n := 0; n < num; n++ {
+		sumTime = 0
+		for i := 0; i < 250; i++ {
+			wg.Add(1)
+			ii := i
+			go func() {
+				t_ns := time.Now().UnixNano()
+				db, err := cp.GetConn()
+				checkPrepareErr("get conn", err)
+				stmt, err := db.Prepare("upsert into user_test(id,name,age) values(?,?,?)")
+				checkPrepareErr("prepare upsert", err)
+				for k := 0; k < 10; k++ {
+					_, err = stmt.Exec(n*2500+ii*10+k, "name_"+strconv.Itoa(n*2500+ii*10+k), 18)
+					checkPrepareErr("upsert stmt exec", err)
+				}
+				checkPrepareErr("upsert close statement", stmt.Close())
+				cp.ReleaseConn(db)
+				mu.Lock()
+				sumTime += (time.Now().UnixNano() - t_ns) / 1000000
+				mu.Unlock()
+				wg.Done()
+			}()
+		}
+		fmt.Println("开始阻塞_", n)
+		wg.Wait()
+		fmt.Println("任务执行结束,解除阻塞_", n, "平均rt:", sumTime/2500, "ms")
+		totalTime += sumTime / 2500
+
+		//time.Sleep(2 * time.Second)
 	}
-	// sql.DB本身就是一个pool的设计，唯一的缺点是没有 连接探活机制
-	db := sql.OpenDB(conn)
+	fmt.Println("_________________________________task take", (time.Now().Unix()-ti)/60, "min")
+	fmt.Println("任务结束", "平均rt:", totalTime/int64(num), "ms")
+	//checkPrepareErr("close conn pool", cp.Close())
+}
 
-	db.SetMaxIdleConns(128) // 闲置连接数
-	db.SetMaxOpenConns(128) // 最大连接数（不要太大，过多的连接服务端不会建立，不要太小，数据库机器cpu使用率会不高，数值可根据数据库机器配置来调节）
-
-	// 定时探活并新建连接适合这样的场景：长时间空闲，有突发流量，希望降低突发流量的rt。其它场景下，即使连接失活也没关系，db在执行语句时如果连接不可用，会丢弃并创建新的连接
-	// 在连接忙的时候，探活机制不应改参与竞争连接，这是下一步优化的方向，不过如果探活周期长，执行消耗小关系就不是很大
-	as := &ProbeStmt{db: db, interval: 25 * time.Second, num: 20} // interval小于连接空闲丢弃时间
-	err := as.Open(nil)
-	checkErr("the probe mechanism", err)
-	defer as.Close()
-
-	for i := 0; i < 200; i++ {
-		wg.Add(1)
-		go operation(db, 0)
+func checkPrepareErr(remark string, err error) {
+	if err != nil {
+		log.Println(remark + ":" + err.Error())
 	}
-	fmt.Println("开始阻塞")
-	wg.Wait()
-	fmt.Println("任务执行结束,解除阻塞")
-
 }
