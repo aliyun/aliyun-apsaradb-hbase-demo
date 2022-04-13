@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -27,8 +28,8 @@ import (
 	"time"
 )
 
-type connPool struct {
-	connList     []*sql.DB // 存放连接
+type ConnPool struct {
+	connList     []*sql.DB // 存放连接,和head、tail组成一个循环队列
 	maxOpen      int       // 允许的最大连接数
 	muNumOpen    sync.Mutex
 	numOpen      int // 已有的连接数量，包括分配出去的
@@ -36,10 +37,17 @@ type connPool struct {
 	numFree      int                     // 空闲连接数量
 	head         int                     // 头部拿连接
 	tail         int                     // 尾部插入连接
-	connRequests map[uint64]chan *sql.DB // 阻塞
+	connRequests map[uint64]chan *sql.DB // 阻塞高效实现,和leftRequest、rightRequest共同保证先进先出
 	muRequest    sync.Mutex
-	nextRequest  uint64
+	leftRequest  uint64
+	rightRequest uint64
 	info         *ConnInfo
+
+	// 以下为探活字段，探活不能并发开启、关闭
+	interval time.Duration // 探活时间间隔
+	sql      string        // 探活执行的sql
+	isOpen   bool          // 探活是否开启
+	stop     func()        // 停止探活
 }
 type ConnInfo struct {
 	url      string
@@ -48,7 +56,7 @@ type ConnInfo struct {
 	database string
 }
 
-func (cp *connPool) GetConn() (*sql.DB, error) {
+func (cp *ConnPool) GetConn() (*sql.DB, error) {
 	// 返回空闲连接
 	cp.muNumFree.Lock()
 	if cp.numFree > 0 {
@@ -70,10 +78,21 @@ func (cp *connPool) GetConn() (*sql.DB, error) {
 	cp.muNumOpen.Unlock()
 
 	// 等待
-	req := make(chan *sql.DB, 1)
 	cp.muRequest.Lock()
-	cp.connRequests[cp.nextRequest] = req
-	cp.nextRequest++
+	// 再次检查空闲连接，防止出现一直等待的情况
+	cp.muNumFree.Lock()
+	if cp.numFree > 0 {
+		db := cp.connList[cp.head]
+		cp.head = (cp.head + 1) % cp.maxOpen
+		cp.numFree--
+		cp.muNumFree.Unlock()
+		cp.muRequest.Unlock()
+		return db, nil
+	}
+	cp.muNumFree.Unlock()
+	req := make(chan *sql.DB, 1)
+	cp.connRequests[cp.rightRequest] = req
+	cp.rightRequest++ // uint64类型最大值+1会变成0
 	cp.muRequest.Unlock()
 	select {
 	case ret, ok := <-req:
@@ -87,29 +106,25 @@ func (cp *connPool) GetConn() (*sql.DB, error) {
 	}
 }
 
-func (cp *connPool) ReleaseConn(db *sql.DB) {
+func (cp *ConnPool) ReleaseConn(db *sql.DB) {
 	cp.muRequest.Lock()
-	if c := len(cp.connRequests); c > 0 {
-		var req chan *sql.DB
-		var reqKey uint64
-		for reqKey, req = range cp.connRequests {
-			break
-		}
-		delete(cp.connRequests, reqKey) // Remove from pending requests.
+	if cp.leftRequest != cp.rightRequest {
+		req := cp.connRequests[cp.leftRequest]
+		delete(cp.connRequests, cp.leftRequest) // Remove from pending requests.
+		cp.leftRequest++
 		cp.muRequest.Unlock()
 		req <- db
 		return
-
 	}
-	cp.muRequest.Unlock()
 	cp.muNumFree.Lock()
 	cp.connList[cp.tail] = db
 	cp.tail = (cp.tail + 1) % cp.maxOpen
 	cp.numFree++
 	cp.muNumFree.Unlock()
+	cp.muRequest.Unlock()
 }
 
-func (cp *connPool) Close() error {
+func (cp *ConnPool) Close() error {
 	for _, req := range cp.connRequests {
 		close(req)
 	}
@@ -121,7 +136,7 @@ func (cp *connPool) Close() error {
 	return err
 }
 
-func (cp *connPool) getNewSqlDB() *sql.DB {
+func (cp *ConnPool) getNewSqlDB() *sql.DB {
 	conn := avatica.NewConnector(cp.info.url).(*avatica.Connector)
 	conn.Info = map[string]string{
 		"user":     cp.info.user,
@@ -131,11 +146,76 @@ func (cp *connPool) getNewSqlDB() *sql.DB {
 	return sql.OpenDB(conn)
 }
 
-func OpenConnPool(info *ConnInfo, maxOpen int) *connPool {
+func (cp *ConnPool) SetProbeInterval(d time.Duration) {
+	if d < 0 {
+		d = time.Minute
+	}
+	cp.interval = d
+}
+
+func (cp *ConnPool) SetProbeSql(s string) {
+	if s == "" {
+		s = "show databases"
+	}
+	cp.sql = s
+}
+
+func (cp *ConnPool) OpenProbe(ctx context.Context) error {
+	if cp.isOpen {
+		return fmt.Errorf("probe is open")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if cp.interval == 0 {
+		cp.interval = time.Minute
+	}
+	if cp.sql == "" {
+		cp.sql = "show databases"
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	cp.stop = cancel
+	cp.isOpen = true
+	go cp.aliveTask(ctx)
+	return nil
+}
+
+func (cp *ConnPool) aliveTask(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(cp.interval):
+			// 超过一半连接空闲时才去探活
+			if cp.numFree > cp.numOpen/2 {
+				log.Println("________________________________探活执行 ", cp.sql, cp.interval)
+				for i := 0; i < cp.numFree; i++ {
+					if cp.numFree > cp.numOpen/2 { // 每次循环再次判断，不影响主线任务，及时结束探活
+						db, _ := cp.GetConn() // 注意这里只是给一个示例，生产环境下异常要cover
+						stmt, _ := db.Prepare(cp.sql)
+						_, _ = stmt.Exec()
+						_ = stmt.Close()
+						cp.ReleaseConn(db)
+					} else { // 跳出当前for循环
+						break
+					}
+				}
+			}
+		}
+	}
+}
+
+func (cp *ConnPool) CloseProbe() {
+	log.Println("________________________________探活关闭 ")
+	cp.stop()
+	cp.isOpen = false
+}
+
+func OpenConnPool(info *ConnInfo, maxOpen int) *ConnPool {
 	if maxOpen < 1 {
 		maxOpen = 1
 	}
-	return &connPool{
+	return &ConnPool{
 		connList:     make([]*sql.DB, maxOpen),
 		maxOpen:      maxOpen,
 		info:         info,
@@ -152,14 +232,15 @@ func main() {
 		database: "default", // 初始化连接指定的默认database
 	}
 	cp := OpenConnPool(connInfo, 100) // 100个连接的pool
-	defer func() {
-		checkPrepareErr("close conn pool", cp.Close())
-	}()
+	defer checkPrepareErr("close conn pool", cp.Close())
+
+	//checkPrepareErr("open probe", cp.OpenProbe(nil)) // 开启探活
+	//defer cp.CloseProbe()
 	var wg sync.WaitGroup
 	var totalTime int64
 	var sumTime int64
 	var mu sync.Mutex
-	num := 100
+	num := 10
 	ti := time.Now().Unix()
 	for n := 0; n < num; n++ {
 		sumTime = 0
@@ -167,8 +248,10 @@ func main() {
 			wg.Add(1)
 			ii := i
 			go func() {
+				defer wg.Done()
 				t_ns := time.Now().UnixNano()
 				db, err := cp.GetConn()
+				defer cp.ReleaseConn(db) // 一定要保证释放连接
 				checkPrepareErr("get conn", err)
 				stmt, err := db.Prepare("upsert into user_test(id,name,age) values(?,?,?)")
 				checkPrepareErr("prepare upsert", err)
@@ -177,11 +260,9 @@ func main() {
 					checkPrepareErr("upsert stmt exec", err)
 				}
 				checkPrepareErr("upsert close statement", stmt.Close())
-				cp.ReleaseConn(db)
 				mu.Lock()
 				sumTime += (time.Now().UnixNano() - t_ns) / 1000000
 				mu.Unlock()
-				wg.Done()
 			}()
 		}
 		fmt.Println("开始阻塞_", n)
@@ -191,9 +272,8 @@ func main() {
 
 		//time.Sleep(2 * time.Second)
 	}
-	fmt.Println("_________________________________task take", (time.Now().Unix()-ti)/60, "min")
+	fmt.Println("_________________________________task take", time.Now().Unix()-ti, "s")
 	fmt.Println("任务结束", "平均rt:", totalTime/int64(num), "ms")
-	//checkPrepareErr("close conn pool", cp.Close())
 }
 
 func checkPrepareErr(remark string, err error) {
