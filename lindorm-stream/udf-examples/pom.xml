@@ -45,7 +45,7 @@
 
     <properties>
         <classgraph.version>4.8.59</classgraph.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jackson.version>1.9.13</jackson.version>
     </properties>
 
