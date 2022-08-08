@@ -2,6 +2,7 @@ package com.example.test_spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping("/adduser")
-    public String addUser(User user) {
+    public String addUser(@RequestBody User user) {
         return userServer.AddUser(user);
     }
 
