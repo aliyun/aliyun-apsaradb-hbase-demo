@@ -5,6 +5,7 @@ import (
 	"fmt"
 	avatica "github.com/apache/calcite-avatica-go/v5"
 	"log"
+	"time"
 )
 
 func checkErr(remark string, err error) {
@@ -23,6 +24,12 @@ func main() {
 	}
 
 	db := sql.OpenDB(conn)
+	// 连接最大空闲时间， 可以根据实际情况调整
+	db.SetConnMaxIdleTime(8 * time.Minute)
+	// 连接池中允许的最大连接数， 可以根据实际情况调整
+	db.SetMaxOpenConns(20)
+	// 连接池中允许的最大空闲连接数量, 可以根据实际情况调整
+	db.SetMaxIdleConns(2)
 
 	// 创建表
 	_, err := db.Exec("create table if not exists user_test(id int, name varchar,age int, primary key(id))")
