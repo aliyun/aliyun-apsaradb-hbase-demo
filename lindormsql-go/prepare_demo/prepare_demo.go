@@ -35,7 +35,9 @@ func main() {
     stmt, err = db.Prepare("upsert into user_test(id,name,age) values(?,?,?)")
     util.CheckErr("prepare_demo upsert", err)
     _, err = stmt.Exec(1, "zhangsan", 17)
+    util.CheckErr("upsert stmt exec", err)
     _, err = stmt.Exec(2, "lisi", 18)
+    util.CheckErr("upsert stmt exec", err)
     _, err = stmt.Exec(3, "wanger", 19)
     util.CheckErr("upsert stmt exec", err)
     util.CheckErr("upsert close statement", stmt.Close())
@@ -54,23 +56,27 @@ func main() {
     util.CheckErr("update stmt exec", err)
     util.CheckErr("update close statement", stmt.Close())
 
-    // 获取一行数据
+    // 查询数据
     stmt, err = db.Prepare("select * from user_test where id=?")
-    util.CheckErr("prepare_demo select one", err)
-    row := stmt.QueryRow(1)
+    util.CheckErr("prepare_demo prepare", err)
+    rows,err := stmt.Query(1)
+    util.CheckErr("prepare_demo query", err)
     var id int
     var name string
     var age int
-    err = row.Scan(&id, &name, &age)
-    util.CheckErr("scan", err)
+    for rows.Next() {
+        err = rows.Scan(&id, &name, &age)
+        util.CheckErr("scan", err)
+        fmt.Println("id:", id, "name:", name, "age:", age)
+    }
+    util.CheckErr("select close rows", rows.Close())
     util.CheckErr("select close statement", stmt.Close())
-    fmt.Println("id:", id, "name:", name, "age:", age)
 
     // 查询数据
     querySql := "select * from user_test"
     stmt, err = db.Prepare(querySql)
     util.CheckErr("prepare_demo select", err)
-    rows, err := stmt.Query()
+    rows, err = stmt.Query()
     fmt.Println(querySql)
     defer rows.Close()
     util.CheckErr("select", err)
@@ -79,5 +85,6 @@ func main() {
         util.CheckErr("scan", err)
         fmt.Println("id:", id, "name:", name, "age:", age)
     }
+    util.CheckErr("select close rows", rows.Close())
     util.CheckErr("select close statement", stmt.Close())
 }

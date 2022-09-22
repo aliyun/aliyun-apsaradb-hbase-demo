@@ -2,7 +2,7 @@ module lindorm-sql-demo
 
 go 1.17
 
-replace github.com/apache/calcite-avatica-go/v5 => github.com/aliyun/alibabacloud-lindorm-go-sql-driver/v5 v5.0.0
+replace github.com/apache/calcite-avatica-go/v5 => github.com/aliyun/alibabacloud-lindorm-go-sql-driver/v5 v5.0.1
 
 require github.com/apache/calcite-avatica-go/v5 v5.0.0
 
