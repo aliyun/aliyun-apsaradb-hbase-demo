@@ -18,6 +18,9 @@ func main() {
 	}
 
 	db := sql.OpenDB(conn)
+
+	//设置连接池参数
+
 	// 连接最大空闲时间， 可以根据实际情况调整
 	db.SetConnMaxIdleTime(8 * time.Minute)
 	// 连接池中允许的最大连接数， 可以根据实际情况调整
@@ -30,23 +33,23 @@ func main() {
 	util.CheckErr("create table", err)
 
 	// 添加数据
-	_, err = db.Exec("upsert into user_test(id,name,age) values(?,?,?)", 1, "zhangsan", 17)
+	_, err = db.Exec("upsert into user_test(id,name,age) values(1,'zhangsan',17)")
 	util.CheckErr("insert", err)
-	_, err = db.Exec("upsert into user_test(id,name,age) values(?,?,?)", 2, "lisi", 18)
+	_, err = db.Exec("upsert into user_test(id,name,age) values(2,'lisi',18)")
 	util.CheckErr("insert", err)
-	_, err = db.Exec("upsert into user_test(id,name,age) values(?,?,?)", 3, "wanger", 19)
+	_, err = db.Exec("upsert into user_test(id,name,age) values(3,'wanger',19)")
 	util.CheckErr("insert", err)
 
 	// 删除数据
-	_, err = db.Exec("delete from user_test where id=?", 2)
+	_, err = db.Exec("delete from user_test where id=2")
 	util.CheckErr("delete", err)
 
 	// 修改数据
-	_, err = db.Exec("upsert into user_test(id,name,age) values(?,?,?)", 1, "zhangsan", 7)
+	_, err = db.Exec("upsert into user_test(id,name,age) values(1,'zhangsan',7)")
 	util.CheckErr("update", err)
 
 	// 获取一行数据
-	row := db.QueryRow("select * from user_test where id=?", 1)
+	row := db.QueryRow("select * from user_test where id=1")
 	var id int
 	var name string
 	var age int
@@ -59,10 +62,10 @@ func main() {
 	rows, err := db.Query(querySql)
 	util.CheckErr("select", err)
 	defer rows.Close()
-	fmt.Println(querySql)
+	fmt.Println("run query: " , querySql, " get results:")
 	for rows.Next() {
 		err = rows.Scan(&id, &name, &age)
 		util.CheckErr("scan", err)
-		fmt.Println("id:", id, "name:", name, "age:", age)
+		fmt.Printf("id: %d, name: %s, age: %d\n", id, name, age)
 	}
 }
