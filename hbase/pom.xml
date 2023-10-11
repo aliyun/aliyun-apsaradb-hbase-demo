@@ -11,14 +11,13 @@
     </parent>
     <groupId>com.aliyun.hbase</groupId>
     <artifactId>hbase-examples</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version> 
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>com.aliyun.hbase</groupId>
             <artifactId>alihbase-client</artifactId>
             <version>${hbase.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
