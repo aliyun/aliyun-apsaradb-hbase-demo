@@ -12,7 +12,7 @@ def connect(kw_args):
 
 
 # 用户名通过lindorm_user字段传递，密码使用lindorm_password字段设置，database字段设置连接初始化默认数据库。
-connect_kw_args = {'lindorm_user': 'test', 'lindorm_password': 'test', 'database': 'default'}
+connect_kw_args = {'user': 'test', 'password': 'test'}
 connection = connect(connect_kw_args)
 
 with connection.cursor() as statement:
