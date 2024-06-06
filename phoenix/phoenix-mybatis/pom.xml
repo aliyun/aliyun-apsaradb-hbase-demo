@@ -14,7 +14,7 @@
 
     <properties>
         <phoenix.client.version>5.2.1-HBase-2.x</phoenix.client.version>
-        <spring.boot.version>2.0.3.RELEASE</spring.boot.version>
+        <spring.boot.version>2.5.12</spring.boot.version>
         <mybatis.starter.version>1.2.0</mybatis.starter.version>
         <druid.version>1.1.5</druid.version>
     </properties>
