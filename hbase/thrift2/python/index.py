@@ -50,10 +50,12 @@ print "getMultiple results: ", results
 # 扫描时需要设置startRow和stopRow，否则会变成全表扫描
 startRow = "row0".encode("utf8")
 stopRow = "row9".encode("utf8")
-scan = TScan(startRow=startRow, stopRow=stopRow)
 # caching的大小为每次从服务器返回的行数，设置太大会导致服务器处理过久，太小会导致范围扫描与服务器做过多交互
-# 根据每行的大小，caching的值一般设置为10到100之间
-caching = 2
+# 根据每行的大小，caching的值一般设置为100到500之间
+caching = 200
+scan = TScan(startRow=startRow, stopRow=stopRow, caching=caching)
+# numRows 表示最多取多少行，类似SQL中的LIMIT
+numRows = caching
 # 扫描的结果
 results = []
 # 此函数可以找到比当前row大的最小row，方法是在当前row后加入一个0x00的byte
@@ -65,7 +67,7 @@ def createClosestRowAfter(row):
 while True:
     lastResult = None
     # getScannerResults会自动完成open,close 等scanner操作，HBase增强版必须使用此方法进行范围扫描
-    currentResults = client.getScannerResults(tableInbytes, scan, caching)
+    currentResults = client.getScannerResults(tableInbytes, scan, numRows)
     for result in currentResults:
         results.append(result)
         lastResult = result
@@ -75,7 +77,7 @@ while True:
     # 如果此次扫描是有结果的，我们必须构造一个比当前最后一个result的行大的最小row，继续进行扫描，以便返回所有结果
     else:
         nextStartRow = createClosestRowAfter(lastResult.row)
-        scan = TScan(startRow=nextStartRow, stopRow=stopRow)
+        scan = TScan(startRow=nextStartRow, stopRow=stopRow, caching=caching)
 print "Scan results: ", results
 # disable 表
 client.disableTable(TTableName(ns="ns", qualifier="table1"))
